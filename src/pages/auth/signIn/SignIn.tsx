@@ -10,6 +10,7 @@ import {
     Button,
 } from "@chakra-ui/react";
 import useInput from "hooks/useInput";
+import LoginLink from "components/loginLink/LoginLink";
 
 const SignIn = () => {
     const [email, , changeEmail] = useInput("");
@@ -62,6 +63,7 @@ const SignIn = () => {
                 <Button colorScheme="linkedin" mt="5" type="submit">
                     로그인
                 </Button>
+                <LoginLink />
             </form>
         </div>
     );

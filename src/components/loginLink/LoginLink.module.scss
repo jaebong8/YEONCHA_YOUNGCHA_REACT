@@ -1,0 +1,20 @@
+@use "styles/variables.scss" as v;
+
+.loginLink {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 10px;
+    font-size: 14px;
+    span {
+        color: #777;
+    }
+    a {
+        color: v.$subColor;
+        font-weight: bold;
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}

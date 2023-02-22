@@ -12,26 +12,45 @@ import {
 import useInput from "hooks/useInput";
 import { useAuthCreateUserWithEmailAndPassword } from "@react-query-firebase/auth";
 import { auth } from "../../../firebase/firebase";
+import { useToast } from "@chakra-ui/react";
+import LoginLink from "components/loginLink/LoginLink";
 
 const SignUp = () => {
-    const [email, , changeEmail] = useInput("");
-    const [password, , changePassword] = useInput("");
-    const [passwordCheck, , changePasswordCheck] = useInput("");
+    const [email, setEmail, changeEmail] = useInput("");
+    const [password, setPassword, changePassword] = useInput("");
+    const [passwordCheck, setPasswordCheck, changePasswordCheck] = useInput("");
     const [show, setShow] = useState(false);
     const [emailErrMsg, setEmailErrMsg] = useState("");
     const [passwordErrMsg, setPasswordErrMsg] = useState("");
     const [passwordCheckErrMsg, setPasswordCheckErrMsg] = useState("");
     const handleClick = () => setShow(!show);
+    const toast = useToast();
 
     const mutation = useAuthCreateUserWithEmailAndPassword(auth, {
+        onSuccess(user) {
+            toast({
+                title: `${user.user.email}님`,
+                description: "회원가입을 환영합니다.",
+                status: "success",
+                duration: 5000,
+                isClosable: true,
+            });
+        },
         onError(error) {
-            console.log("회원가입 실패");
+            if (error.code === "auth/email-already-in-use") {
+                setEmailErrMsg("이미 가입된 이메일입니다.");
+            }
+            toast({
+                title: "회원가입을 실패하였습니다.",
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+            });
         },
     });
 
     const onSubmitHandler = (e: React.FormEvent<HTMLElement>) => {
         e.preventDefault();
-        console.log(email, password);
         if (password !== passwordCheck) {
             setPasswordCheckErrMsg("비밀번호가 일치하지 않습니다.");
             return;
@@ -40,6 +59,12 @@ const SignUp = () => {
             email,
             password,
         });
+        setEmail("");
+        setPassword("");
+        setPasswordCheck("");
+        setEmailErrMsg("");
+        setPasswordErrMsg("");
+        setPasswordCheckErrMsg("");
     };
 
     return (
@@ -97,6 +122,7 @@ const SignUp = () => {
                 <Button colorScheme="linkedin" mt="5" type="submit">
                     회원가입
                 </Button>
+                <LoginLink />
             </form>
         </div>
     );
