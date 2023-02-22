@@ -5,6 +5,10 @@ import App from "./App";
 import SignIn from "pages/auth/signIn/SignIn";
 import SignUp from "pages/auth/signUp/SignUp";
 import { ChakraProvider } from "@chakra-ui/react";
+import { QueryClient, QueryClientProvider } from "react-query";
+import { ReactQueryDevtools } from "react-query/devtools";
+
+const queryClient = new QueryClient();
 
 const router = createBrowserRouter([
     {
@@ -23,7 +27,10 @@ const router = createBrowserRouter([
 
 const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
 root.render(
-    <ChakraProvider>
-        <RouterProvider router={router} />
-    </ChakraProvider>
+    <QueryClientProvider client={queryClient}>
+        <ReactQueryDevtools initialIsOpen={true} />
+        <ChakraProvider>
+            <RouterProvider router={router} />
+        </ChakraProvider>
+    </QueryClientProvider>
 );

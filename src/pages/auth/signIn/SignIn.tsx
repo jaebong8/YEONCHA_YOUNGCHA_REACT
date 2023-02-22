@@ -28,7 +28,7 @@ const SignIn = () => {
     return (
         <div className={styles.container}>
             <form onSubmit={onSubmitHandler}>
-                <FormControl isRequired isInvalid>
+                <FormControl isRequired isInvalid={emailErrMsg !== ""}>
                     <FormLabel>Email</FormLabel>
                     <Input
                         type="email"
@@ -39,7 +39,7 @@ const SignIn = () => {
                     />
                     {emailErrMsg && <FormErrorMessage>{emailErrMsg}</FormErrorMessage>}
                 </FormControl>
-                <FormControl isRequired isInvalid mt="2">
+                <FormControl isRequired isInvalid={passwordErrMsg !== ""} mt="2">
                     <FormLabel>Password</FormLabel>
                     <InputGroup>
                         <Input
