@@ -7,6 +7,8 @@ import SignUp from "pages/auth/signUp/SignUp";
 import { ChakraProvider } from "@chakra-ui/react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
+import theme from "components/theme";
+import Fonts from "styles/Fonts";
 
 const queryClient = new QueryClient();
 
@@ -29,7 +31,8 @@ const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement)
 root.render(
     <QueryClientProvider client={queryClient}>
         <ReactQueryDevtools initialIsOpen={true} />
-        <ChakraProvider>
+        <ChakraProvider theme={theme}>
+            <Fonts />
             <RouterProvider router={router} />
         </ChakraProvider>
     </QueryClientProvider>

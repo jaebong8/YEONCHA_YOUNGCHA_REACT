@@ -40,6 +40,9 @@ const SignUp = () => {
             if (error.code === "auth/email-already-in-use") {
                 setEmailErrMsg("이미 가입된 이메일입니다.");
             }
+            if (error.code === "auth/invalid-email") {
+                setEmailErrMsg("잘못된 이메일 형식입니다.");
+            }
             toast({
                 title: "회원가입을 실패하였습니다.",
                 status: "error",
@@ -55,6 +58,7 @@ const SignUp = () => {
             setPasswordCheckErrMsg("비밀번호가 일치하지 않습니다.");
             return;
         }
+
         mutation.mutate({
             email,
             password,
