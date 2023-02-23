@@ -17,8 +17,10 @@ import LoginLink from "components/loginLink/LoginLink";
 import { Img } from "@chakra-ui/react";
 import logo from "assets/images/mainIcon.png";
 import SignBtn from "components/SignBtn";
-import { useAuthSignInWithEmailAndPassword } from "@react-query-firebase/auth";
+import { useAuthSignInWithEmailAndPassword, useAuthSignOut, useAuthIdToken } from "@react-query-firebase/auth";
 import { auth } from "firebaseConfig/firebase";
+import withAuth from "components/hooks/withAuth";
+
 const SignIn = () => {
     const [email, setEmail, changeEmail] = useInput("");
     const [password, setPassword, changePassword] = useInput("");
@@ -39,6 +41,7 @@ const SignIn = () => {
             });
             setEmail("");
             setPassword("");
+            sessionStorage.setItem("signIn", user.user.uid);
         },
         onError(error) {
             if (error.code === "auth/wrong-password") {
@@ -118,4 +121,4 @@ const SignIn = () => {
     );
 };
 
-export default SignIn;
+export default withAuth(SignIn);

@@ -1,15 +1,6 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useState } from "react";
 import styles from "pages/auth/signIn/SignIn.module.scss";
-import {
-    FormControl,
-    FormLabel,
-    FormErrorMessage,
-    Input,
-    InputGroup,
-    InputRightElement,
-    Button,
-    Center,
-} from "@chakra-ui/react";
+import { FormControl, FormLabel, Input, InputGroup, InputRightElement, Button, Center } from "@chakra-ui/react";
 import useInput from "hooks/useInput";
 import { useAuthCreateUserWithEmailAndPassword } from "@react-query-firebase/auth";
 import { auth } from "firebaseConfig/firebase";
@@ -26,7 +17,6 @@ const SignUp = () => {
     const [show, setShow] = useState(false);
     const handleClick = () => setShow(!show);
     const toast = useToast();
-
     const mutation = useAuthCreateUserWithEmailAndPassword(auth, {
         onSuccess(user) {
             toast({
@@ -39,6 +29,7 @@ const SignUp = () => {
             setEmail("");
             setPassword("");
             setPasswordCheck("");
+            sessionStorage.removeItem("signIn");
         },
         onError(error) {
             if (error.code === "auth/email-already-in-use") {
@@ -89,7 +80,7 @@ const SignUp = () => {
         <Center h="100vh">
             <Center bg="#FFFFFF" h="100%" w="sm" flexDir="column">
                 <Img boxSize="150px" objectFit="cover" src={logo} alt="mainIcon" mb="4" />
-                <form onSubmit={onSubmitHandler}>
+                <form onSubmit={onSubmitHandler} className={styles.form}>
                     <FormControl isRequired>
                         <FormLabel>Email</FormLabel>
                         <Input
