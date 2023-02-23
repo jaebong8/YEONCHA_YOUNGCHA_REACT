@@ -1,13 +1,13 @@
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import "styles/global.scss";
+import "./index.scss";
 import App from "./App";
 import SignIn from "pages/auth/signIn/SignIn";
 import SignUp from "pages/auth/signUp/SignUp";
 import { ChakraProvider } from "@chakra-ui/react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
-import theme from "components/theme";
+import theme from "styles/theme";
 import Fonts from "styles/Fonts";
 
 const queryClient = new QueryClient();
