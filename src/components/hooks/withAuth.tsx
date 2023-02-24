@@ -15,13 +15,14 @@ function withAuth(Component: ComponentType) {
         const pathName = location.pathname;
 
         useEffect(() => {
+            const isLogin = tokenResult.data && userUid !== null;
             if (tokenResult.isLoading) return;
             //로그인한 상태
-            if (tokenResult.data && userUid !== null && pathName === "/auth/signin") {
+            if (isLogin && pathName === "/auth/signin") {
                 navigate("/");
             }
             //로그아웃 상태
-            if (tokenResult.data === null && pathName === "/") {
+            if (!isLogin && pathName === "/") {
                 navigate("/auth/signin");
             }
             setIsLoading(false);

@@ -1,0 +1,40 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    .topNavBar {
+        height: 60px;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 10px;
+        .leftBox {
+            display: flex;
+            gap: 20px;
+            position: relative;
+            align-items: center;
+            .spacing {
+                width: 1px;
+                background-color: #c0c0c0;
+                height: 40px;
+            }
+            > ul {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                > li {
+                    a {
+                        padding: 7.5px 15px;
+                        border-radius: 9999px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        height: 37.5;
+                        font-weight: bold;
+                        font-size: 0.9rem;
+                    }
+                }
+            }
+        }
+    }
+}

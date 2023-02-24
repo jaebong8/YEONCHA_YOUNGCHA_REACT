@@ -3,13 +3,15 @@ import styles from "pages/auth/signIn/SignIn.module.scss";
 import { FormControl, FormLabel, Input, InputGroup, InputRightElement, Button, Center } from "@chakra-ui/react";
 import useInput from "hooks/useInput";
 import { useAuthCreateUserWithEmailAndPassword } from "@react-query-firebase/auth";
-import { auth } from "firebaseConfig/firebase";
+import { auth, db } from "firebaseConfig/firebase";
 import { useToast } from "@chakra-ui/react";
 import LoginLink from "components/loginLink/LoginLink";
 import { Img } from "@chakra-ui/react";
 import logo from "assets/images/mainIcon.png";
 import SignBtn from "components/SignBtn";
-
+import { collection, doc, setDoc } from "firebase/firestore";
+import { useFirestoreCollectionMutation, useFirestoreDocumentMutation } from "@react-query-firebase/firestore";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 const SignUp = () => {
     const [email, setEmail, changeEmail] = useInput("");
     const [password, setPassword, changePassword] = useInput("");
@@ -17,6 +19,7 @@ const SignUp = () => {
     const [show, setShow] = useState(false);
     const handleClick = () => setShow(!show);
     const toast = useToast();
+
     const mutation = useAuthCreateUserWithEmailAndPassword(auth, {
         onSuccess(user) {
             toast({
@@ -26,6 +29,15 @@ const SignUp = () => {
                 duration: 5000,
                 isClosable: true,
             });
+            const saveUser = async () => {
+                const uid = user.user.uid;
+                const docRef = await setDoc(doc(db, "users", uid), {
+                    userUid: uid,
+                    role: "admin",
+                    email: email,
+                });
+            };
+            saveUser();
             setEmail("");
             setPassword("");
             setPasswordCheck("");
@@ -89,6 +101,7 @@ const SignUp = () => {
                             onChange={changeEmail}
                             placeholder="Enter Email"
                             variant="flushed"
+                            _placeholder={{ fontSize: "0.9rem" }}
                         />
                     </FormControl>
                     <FormControl isRequired mt="2">
@@ -101,6 +114,7 @@ const SignUp = () => {
                                 placeholder="Enter Password"
                                 variant="flushed"
                                 minLength={6}
+                                _placeholder={{ fontSize: "0.9rem" }}
                             />
                             <InputRightElement>
                                 <Button h="1.75rem" size="sm" onClick={handleClick}>
@@ -119,6 +133,7 @@ const SignUp = () => {
                                 placeholder="Enter Password Check"
                                 variant="flushed"
                                 minLength={6}
+                                _placeholder={{ fontSize: "0.9rem" }}
                             />
                             <InputRightElement>
                                 <Button h="1.75rem" size="sm" onClick={handleClick}>

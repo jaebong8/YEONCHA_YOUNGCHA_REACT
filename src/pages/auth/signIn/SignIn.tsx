@@ -18,17 +18,15 @@ import { Img } from "@chakra-ui/react";
 import logo from "assets/images/mainIcon.png";
 import SignBtn from "components/SignBtn";
 import { useAuthSignInWithEmailAndPassword, useAuthSignOut, useAuthIdToken } from "@react-query-firebase/auth";
-import { auth } from "firebaseConfig/firebase";
+import { auth, db } from "firebaseConfig/firebase";
 import withAuth from "components/hooks/withAuth";
 
 const SignIn = () => {
     const [email, setEmail, changeEmail] = useInput("");
     const [password, setPassword, changePassword] = useInput("");
-
     const [show, setShow] = useState(false);
-
-    const handleClick = () => setShow(!show);
     const toast = useToast();
+    const handleClick = () => setShow(!show);
 
     const mutation = useAuthSignInWithEmailAndPassword(auth, {
         onSuccess(user) {
@@ -92,6 +90,7 @@ const SignIn = () => {
                             onChange={changeEmail}
                             placeholder="Enter Email"
                             variant="flushed"
+                            _placeholder={{ fontSize: "0.9rem" }}
                         />
                     </FormControl>
                     <FormControl isRequired mt="2">
@@ -104,6 +103,7 @@ const SignIn = () => {
                                 placeholder="Enter Password"
                                 variant="flushed"
                                 minLength={6}
+                                _placeholder={{ fontSize: "0.9rem" }}
                             />
 
                             <InputRightElement>
