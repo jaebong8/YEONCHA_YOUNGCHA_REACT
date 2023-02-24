@@ -15,6 +15,7 @@ import {
     isSaturday,
     isSunday,
 } from "date-fns";
+import { spawn } from "child_process";
 
 const Calendar = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
@@ -37,7 +38,7 @@ const Calendar = () => {
             day = addDays(day, 1);
         }
         return monthArray;
-    }, [currentDate]);
+    }, [startDate, endDate]);
     return (
         <section className={styles.calendar}>
             <div className={styles.yearTitle}>{format(currentDate, "yyyy년")}</div>
@@ -72,9 +73,10 @@ const Calendar = () => {
             </div>
             <div className={styles.dateContainer}>
                 {createMonth.map((v, i) => {
-                    let validation;
                     let style;
-                    validation = getMonth(currentDate) === getMonth(v);
+                    const validation = getMonth(currentDate) === getMonth(v);
+                    const today = format(new Date(), "yyyyMMdd") === format(v, "yyyyMMdd");
+                    console.log(today);
                     if (validation && isSaturday(v)) {
                         style = {
                             color: "blue",
@@ -90,7 +92,10 @@ const Calendar = () => {
                             className={validation ? styles.currentMonth : styles.diffMonth}
                             style={style}
                         >
-                            <span>{format(v, "d")}</span>
+                            <div className={styles.topLine}>
+                                <span className={styles.day}>{format(v, "d")}</span>
+                                {today && <span className={styles.today}>(오늘)</span>}
+                            </div>
                         </div>
                     );
                 })}

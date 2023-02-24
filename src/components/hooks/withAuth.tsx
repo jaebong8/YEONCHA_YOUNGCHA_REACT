@@ -20,11 +20,10 @@ function withAuth(Component: ComponentType) {
             //로그인한 상태
             if (isLogin && pathName === "/auth/signin") {
                 navigate("/");
-            }
-            //로그아웃 상태
-            if (!isLogin && pathName === "/") {
+            } else if (!isLogin && !(pathName === "/auth/signin" || pathName === "/auth/signup")) {
                 navigate("/auth/signin");
             }
+
             setIsLoading(false);
         }, [tokenResult, userUid, navigate, pathName]);
 

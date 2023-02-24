@@ -1,20 +1,30 @@
-import { Avatar, Box, Tab, TabList, Tabs } from "@chakra-ui/react";
+import {
+    Avatar,
+    Box,
+    Button,
+    Menu,
+    MenuButton,
+    MenuDivider,
+    MenuGroup,
+    MenuItem,
+    MenuList,
+    Tab,
+    TabList,
+    Tabs,
+} from "@chakra-ui/react";
 import styles from "./Layout.module.scss";
 import { Img } from "@chakra-ui/react";
 import longIconPath from "assets/images/longIcon.png";
-import { NavLink, useLocation } from "react-router-dom";
-import { useMemo } from "react";
+import { NavLink } from "react-router-dom";
+
+import { auth } from "firebaseConfig/firebase";
+import { useAuthSignOut } from "@react-query-firebase/auth";
 
 const Layout = (props: { children: React.ReactNode }) => {
-    const location = useLocation();
-    const pathName = location.pathname;
-    const title = useMemo(() => {
-        if (pathName === "/") return "연차 관리";
-        if (pathName === "/workers") return "직원 관리";
-    }, [pathName]);
+    const mutationLogOut = useAuthSignOut(auth);
     let activeStyle = {
-        backgroundColor: "#319795",
-        color: "#fff",
+        backgroundColor: "#BEE3F8",
+        // color: "#fff",
     };
 
     return (
@@ -37,7 +47,32 @@ const Layout = (props: { children: React.ReactNode }) => {
                     </ul>
                 </div>
                 <div className={styles.rightBox}>
-                    <Avatar src="https://bit.ly/broken-link" />
+                    <Menu>
+                        <MenuButton>
+                            <Avatar src="https://bit.ly/broken-link" />
+                        </MenuButton>
+                        <MenuList>
+                            <MenuGroup title="Profile">
+                                <MenuItem>My Account</MenuItem>
+                                <MenuItem>Payments </MenuItem>
+                            </MenuGroup>
+                            <MenuDivider color="#DDD" />
+                            <MenuGroup title="Help">
+                                <MenuItem>Docs</MenuItem>
+                                <MenuItem>FAQ</MenuItem>
+                            </MenuGroup>
+                            <MenuDivider color="#DDD" />
+                            <MenuItem
+                                justifyContent={"center"}
+                                onClick={() => {
+                                    mutationLogOut.mutate();
+                                    sessionStorage.removeItem("signIn");
+                                }}
+                            >
+                                Log Out
+                            </MenuItem>
+                        </MenuList>
+                    </Menu>
                 </div>
             </nav>
             {props.children}

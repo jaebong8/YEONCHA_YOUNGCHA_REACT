@@ -65,9 +65,16 @@
             border: 1px solid v.$subColor;
             height: 100px;
             color: v.$subColor2;
-            > span {
-                margin: 5px;
-                font-size: 1rem;
+            .topLine {
+                display: flex;
+                gap: 5px;
+                padding: 0 3px;
+                align-items: center;
+                .day {
+                }
+                .today {
+                    font-size: 0.9rem;
+                }
             }
         }
         .currentMonth {
