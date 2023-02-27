@@ -15,7 +15,6 @@ import {
     isSaturday,
     isSunday,
 } from "date-fns";
-import { spawn } from "child_process";
 
 const Calendar = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
@@ -76,7 +75,6 @@ const Calendar = () => {
                     let style;
                     const validation = getMonth(currentDate) === getMonth(v);
                     const today = format(new Date(), "yyyyMMdd") === format(v, "yyyyMMdd");
-                    console.log(today);
                     if (validation && isSaturday(v)) {
                         style = {
                             color: "blue",
