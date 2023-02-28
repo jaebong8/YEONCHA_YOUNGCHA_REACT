@@ -1,6 +1,6 @@
 import Calendar from "components/calendar/Calendar";
 import { db } from "firebaseConfig/firebase";
-import withAuth from "components/hooks/withAuth";
+import withAuth from "components/hoc/withAuth";
 import { collection, query } from "firebase/firestore";
 import { useFirestoreQuery } from "@react-query-firebase/firestore";
 import Layout from "layouts/Layout";

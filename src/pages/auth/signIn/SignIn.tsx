@@ -19,7 +19,7 @@ import logo from "assets/images/mainIcon.png";
 import SignBtn from "components/SignBtn";
 import { useAuthSignInWithEmailAndPassword, useAuthSignOut, useAuthIdToken } from "@react-query-firebase/auth";
 import { auth, db } from "firebaseConfig/firebase";
-import withAuth from "components/hooks/withAuth";
+import withAuth from "components/hoc/withAuth";
 
 const SignIn = () => {
     const [email, setEmail, changeEmail] = useInput("");
