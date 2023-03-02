@@ -1,16 +1,17 @@
-import { doc } from "firebase/firestore";
+import { doc, DocumentData } from "firebase/firestore";
 import { auth, db } from "firebaseConfig/firebase";
 import { useFirestoreDocumentData } from "@react-query-firebase/firestore";
 import { useAuthUser } from "@react-query-firebase/auth";
+import { UseQueryResult } from "react-query/types/react";
+
+const userUid = sessionStorage.getItem("signIn") ?? "empty";
 
 const useDocQuery = (collection: string) => {
-    // const user = useAuthUser(["user"], auth);
-    // const ref = doc(db, collection, user?.data?.uid);
-    // const product = useFirestoreDocumentData([collection, user?.data?.uid], ref, {
-    //     subscribe: true,
-    // });
-    // return product;
-    return null;
+    const ref = doc(db, collection, userUid);
+    const product = useFirestoreDocumentData([collection, userUid], ref, {
+        subscribe: true,
+    });
+    return product;
 };
 
 export default useDocQuery;

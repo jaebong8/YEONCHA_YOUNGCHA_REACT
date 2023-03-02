@@ -6,20 +6,22 @@
             width: 100%;
             text-align: center;
             position: relative;
-            border-collapse: separate;
+            border-collapse: collapse;
             margin-top: 10px;
             > caption {
                 padding: 10px;
                 background-color: v.$lightGray;
                 font-weight: bold;
                 border: 2px solid #fff;
-                display: none;
+                position: absolute;
+                left: -9999px;
             }
             > thead {
                 > tr {
                     > th {
                         background-color: v.$subColor2;
                         color: #fff;
+                        padding: 1rem;
                     }
                 }
             }
@@ -27,6 +29,8 @@
                 > tr {
                     > td {
                         background-color: #efefef;
+                        padding: 1rem;
+                        border-bottom: 1px solid #fff;
                     }
                 }
             }

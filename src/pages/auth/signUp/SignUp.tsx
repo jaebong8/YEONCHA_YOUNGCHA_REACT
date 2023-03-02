@@ -10,8 +10,7 @@ import { Img } from "@chakra-ui/react";
 import logo from "assets/images/mainIcon.png";
 import SignBtn from "components/SignBtn";
 import { collection, doc, setDoc } from "firebase/firestore";
-import { useFirestoreCollectionMutation, useFirestoreDocumentMutation } from "@react-query-firebase/firestore";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+
 const SignUp = () => {
     const [email, setEmail, changeEmail] = useInput("");
     const [password, setPassword, changePassword] = useInput("");
