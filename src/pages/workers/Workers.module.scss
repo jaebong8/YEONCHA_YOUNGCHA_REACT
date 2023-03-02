@@ -32,10 +32,15 @@
                         background-color: #efefef;
                         padding: 1rem;
                         border-bottom: 1px solid #fff;
-                        &.nameTD {
+                        .editBtn {
                             display: flex;
-                            justify-content: space-between;
                             align-items: center;
+                            justify-content: center;
+                            gap: 5px;
+                            &:hover {
+                                // border-bottom: 1px solid #000;
+                                text-decoration: underline;
+                            }
                         }
                     }
                 }

@@ -1,4 +1,4 @@
-import { AddIcon, DeleteIcon } from "@chakra-ui/icons";
+import { AddIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import {
     AlertDialog,
     AlertDialogBody,
@@ -40,6 +40,7 @@ import { WorkerType } from "types/ts";
 const Workers = () => {
     const addModal = useDisclosure();
     const deleteModal = useDisclosure();
+    const editModal = useDisclosure();
     const initialRef = useRef(null);
     const finalRef = useRef(null);
     const cancelRef = useRef(null);
@@ -165,22 +166,19 @@ const Workers = () => {
                                     const workYear = differenceInYears(new Date(), new Date(worker.workStartDate));
                                     return (
                                         <tr key={`${worker.name}${worker.birthDate}`}>
-                                            <td className={styles.nameTD}>
-                                                <DeleteIcon
-                                                    w={4}
-                                                    h={4}
-                                                    color="red.300"
-                                                    cursor="pointer"
+                                            <td>
+                                                <button
+                                                    className={styles.editBtn}
                                                     onClick={() => {
-                                                        deleteModal.onOpen();
                                                         setClickedWorker((prev) => {
                                                             prev = { ...worker };
                                                             return prev;
                                                         });
+                                                        editModal.onOpen();
                                                     }}
-                                                />
-                                                {worker.name}
-                                                <span></span>
+                                                >
+                                                    {worker.name} <EditIcon />
+                                                </button>
                                             </td>
                                             <td>{worker.birthDate}</td>
                                             <td>{worker.phoneNumber}</td>
@@ -305,7 +303,90 @@ const Workers = () => {
                     </AlertDialogContent>
                 </AlertDialogOverlay>
             </AlertDialog>
-            ;
+            <Modal
+                initialFocusRef={initialRef}
+                finalFocusRef={finalRef}
+                isOpen={editModal.isOpen}
+                onClose={editModal.onClose}
+            >
+                <ModalOverlay />
+                <ModalContent>
+                    <form onSubmit={onSubmitHandler}>
+                        <ModalHeader>직원 추가하기</ModalHeader>
+                        <ModalCloseButton />
+                        <ModalBody pb={6}>
+                            <Stack>
+                                <FormControl isRequired>
+                                    <FormLabel fontWeight="bold">이름</FormLabel>
+                                    <Input
+                                        placeholder="이름"
+                                        value={name}
+                                        type="text"
+                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                            setName(e.target.value);
+                                        }}
+                                        required
+                                        pattern="[a-zA-Z0-9ㄱ-ㅎ가-힣]{1,}"
+                                    />
+                                </FormControl>
+
+                                <FormControl isRequired>
+                                    <FormLabel fontWeight="bold">생년월일</FormLabel>
+                                    <DatePicker
+                                        selected={birthDate}
+                                        onChange={(date) => setBirthDate(date)}
+                                        className={styles.modalInput}
+                                        dateFormat="yyyy/MM/dd"
+                                        locale={ko}
+                                        placeholderText={"예시) 1234/12/23"}
+                                        peekNextMonth
+                                        showMonthDropdown
+                                        showYearDropdown
+                                        dropdownMode="select"
+                                        required
+                                    />
+                                </FormControl>
+                                <FormControl isRequired>
+                                    <FormLabel fontWeight="bold">연락처</FormLabel>
+                                    <Input
+                                        placeholder="예시) 01012345678"
+                                        value={phoneNumber}
+                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                            setPhoneNumber(e.target.value);
+                                        }}
+                                        required
+                                        type="tel"
+                                        pattern="[0-9]{7,}"
+                                    />
+                                </FormControl>
+                                <FormControl isRequired>
+                                    <FormLabel fontWeight="bold">입사일</FormLabel>
+                                    <DatePicker
+                                        selected={workStartDate}
+                                        onChange={(date) => setWorkStartDate(date)}
+                                        className={styles.modalInput}
+                                        dateFormat="yyyy/MM/dd"
+                                        locale={ko}
+                                        required
+                                        placeholderText={"예시) 1234/12/23"}
+                                        peekNextMonth
+                                        showMonthDropdown
+                                        showYearDropdown
+                                        dropdownMode="select"
+                                    />
+                                </FormControl>
+                            </Stack>
+                        </ModalBody>
+
+                        <ModalFooter>
+                            <Button colorScheme="blue" mr={3} type="submit">
+                                저장
+                            </Button>
+                            <Button onClick={editModal.onClose}>취소</Button>
+                        </ModalFooter>
+                    </form>
+                </ModalContent>
+            </Modal>
         </>
     );
 };

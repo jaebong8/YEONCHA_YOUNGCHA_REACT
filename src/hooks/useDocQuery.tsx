@@ -8,7 +8,6 @@ const useDocQuery = (collection: string) => {
     const product = useFirestoreDocumentData([collection, userUid], ref, {
         subscribe: true,
     });
-    console.log(product, userUid);
     return product;
 };
 

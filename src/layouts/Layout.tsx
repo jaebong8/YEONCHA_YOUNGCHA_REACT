@@ -49,7 +49,7 @@ const Layout = (props: { children: React.ReactNode }) => {
                 <div className={styles.rightBox}>
                     <Menu>
                         <MenuButton>
-                            <Avatar src="https://bit.ly/broken-link" />
+                            <Avatar bg="teal.500" />
                         </MenuButton>
                         <MenuList>
                             <MenuGroup title="Profile">
