@@ -30,10 +30,11 @@ const SignUp = () => {
             });
             const saveUser = async () => {
                 const uid = user.user.uid;
-                const docRef = await setDoc(doc(db, "users", uid), {
+                await setDoc(doc(db, "users", uid), {
                     userUid: uid,
                     role: "admin",
                     email: email,
+                    workers: [],
                 });
             };
             saveUser();

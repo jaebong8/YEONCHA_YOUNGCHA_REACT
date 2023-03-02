@@ -27,10 +27,16 @@
             }
             > tbody {
                 > tr {
+                    position: relative;
                     > td {
                         background-color: #efefef;
                         padding: 1rem;
                         border-bottom: 1px solid #fff;
+                        &.nameTD {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                        }
                     }
                 }
             }

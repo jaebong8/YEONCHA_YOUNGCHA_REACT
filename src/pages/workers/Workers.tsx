@@ -1,5 +1,11 @@
-import { AddIcon } from "@chakra-ui/icons";
+import { AddIcon, DeleteIcon } from "@chakra-ui/icons";
 import {
+    AlertDialog,
+    AlertDialogBody,
+    AlertDialogContent,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogOverlay,
     Button,
     FormControl,
     FormLabel,
@@ -25,108 +31,121 @@ import DatePicker from "react-datepicker";
 import ko from "date-fns/locale/ko";
 import "react-datepicker/dist/react-datepicker.css";
 import useDocQuery from "hooks/useDocQuery";
-import useInput from "hooks/useInput";
-import { useAuthCreateUserWithEmailAndPassword } from "@react-query-firebase/auth";
-import { arrayUnion, collection, doc, setDoc, updateDoc } from "firebase/firestore";
+import { arrayRemove, arrayUnion, collection, doc, setDoc, updateDoc } from "firebase/firestore";
 import { auth, db } from "firebaseConfig/firebase";
-import { format } from "date-fns";
+import { differenceInYears, format } from "date-fns";
 import Spinner from "components/spinner/Spinner";
 import { WorkerType } from "types/ts";
 
 const Workers = () => {
-    const [email, setEmail, changeEmail] = useInput("");
-    const [password, setPassword, changePassword] = useInput("");
-    const { isOpen, onOpen, onClose } = useDisclosure();
+    const addModal = useDisclosure();
+    const deleteModal = useDisclosure();
     const initialRef = useRef(null);
     const finalRef = useRef(null);
+    const cancelRef = useRef(null);
     const [birthDate, setBirthDate] = useState<Date | null>(null);
     const [workStartDate, setWorkStartDate] = useState<Date | null>(null);
     const [name, setName] = useState<string>("");
     const [phoneNumber, setPhoneNumber] = useState<string>("");
+    const [clickedWorker, setClickedWorker] = useState({
+        role: "",
+        name: "",
+        phoneNumber: "",
+        birthDate: "",
+        workStartDate: "x",
+    });
     const userInfo = useDocQuery("users");
     const toast = useToast();
     const userUid = sessionStorage.getItem("signIn") ?? "empty";
-    const mutation = useAuthCreateUserWithEmailAndPassword(auth, {
-        onSuccess(user) {
-            toast({
-                title: `직원등록을 성공하였습니다.`,
-                status: "success",
-                duration: 5000,
-                isClosable: true,
-            });
+    const onSubmitHandler = useCallback(
+        (e: React.FormEvent<HTMLElement>) => {
+            e.preventDefault();
             const saveUser = async () => {
-                const workerUid = user.user.uid;
-                if (birthDate !== null && workStartDate !== null) {
-                    await setDoc(
-                        doc(db, "users", userUid),
-                        {
-                            workers: arrayUnion({
-                                userUid: workerUid,
-                                role: "workers",
-                                email,
-                                password,
-                                name,
-                                phoneNumber,
-                                birthDate: format(birthDate, "yyyyMMdd"),
-                                workStartDate: format(workStartDate, "yyyyMMdd"),
-                            }),
-                        },
-                        { merge: true }
-                    );
+                try {
+                    if (birthDate !== null && workStartDate !== null) {
+                        await setDoc(
+                            doc(db, "users", userUid),
+                            {
+                                workers: arrayUnion({
+                                    role: "workers",
+                                    name,
+                                    phoneNumber,
+                                    birthDate: format(birthDate, "yyyy/MM/dd"),
+                                    workStartDate: format(workStartDate, "yyyy/MM/dd"),
+                                }),
+                            },
+                            { merge: true }
+                        );
+                        toast({
+                            title: `직원등록을 성공하였습니다.`,
+                            status: "success",
+                            duration: 5000,
+                            isClosable: true,
+                        });
+                    }
+                } catch (error) {
+                    console.log(error);
+                    toast({
+                        title: "직원등록을 실패하였습니다.",
+                        status: "error",
+                        duration: 5000,
+                        isClosable: true,
+                    });
                 }
             };
             saveUser();
-            setEmail("");
-            setPassword("");
             setName("");
             setPhoneNumber("");
             setBirthDate(null);
             setWorkStartDate(null);
         },
-        onError(error) {
-            if (error.code === "auth/email-already-in-use") {
-                toast({
-                    title: "이미 가입된 이메일입니다.",
-                    status: "error",
-                    duration: 5000,
-                    isClosable: true,
-                });
-                return;
-            }
-            if (error.code === "auth/invalid-email") {
-                toast({
-                    title: "잘못된 이메일 형식입니다.",
-                    status: "error",
-                    duration: 5000,
-                    isClosable: true,
-                });
-                return;
-            }
-            toast({
-                title: "직원등록을 실패하였습니다.",
-                status: "error",
-                duration: 5000,
-                isClosable: true,
-            });
-        },
-    });
-    const onSubmitHandler = useCallback(
-        (e: React.FormEvent<HTMLElement>) => {
-            e.preventDefault();
-            mutation.mutate({
-                email,
-                password,
-            });
-            console.log(name, birthDate, workStartDate, phoneNumber);
-        },
-        [name, birthDate, workStartDate, phoneNumber, email, password, mutation]
+        [name, birthDate, workStartDate, phoneNumber, userUid, toast]
     );
+
+    const deleteHandler = (worker: WorkerType) => {
+        const deleteUser = async () => {
+            try {
+                await updateDoc(doc(db, "users", userUid), {
+                    workers: arrayRemove({
+                        birthDate: worker.birthDate,
+                        name: worker.name,
+                        phoneNumber: worker.phoneNumber,
+                        role: worker.role,
+                        workStartDate: worker.workStartDate,
+                    }),
+                });
+                toast({
+                    title: `직원 삭제를 성공하였습니다.`,
+                    status: "success",
+                    duration: 5000,
+                    isClosable: true,
+                });
+            } catch (error) {
+                console.log(error);
+                toast({
+                    title: `직원 삭제를 실패하였습니다.`,
+                    status: "error",
+                    duration: 5000,
+                    isClosable: true,
+                });
+            }
+        };
+        deleteUser();
+        console.log(auth);
+    };
+
     if (userInfo.isLoading) return <Spinner />;
     return (
         <>
             <Layout>
                 <section className={styles.section}>
-                    <Button leftIcon={<AddIcon />} colorScheme="teal" variant="solid" size="sm" onClick={onOpen}>
+                    <Button
+                        leftIcon={<AddIcon />}
+                        colorScheme="teal"
+                        variant="solid"
+                        size="sm"
+                        onClick={addModal.onOpen}
+                    >
                         직원 추가하기
                     </Button>
                     <div className={styles.tableContainer}>
@@ -143,13 +162,30 @@ const Workers = () => {
                             </thead>
                             <tbody>
                                 {userInfo?.data?.workers.map((worker: WorkerType) => {
+                                    const workYear = differenceInYears(new Date(), new Date(worker.workStartDate));
                                     return (
-                                        <tr key={worker.userUid}>
-                                            <td>{worker.name}</td>
+                                        <tr key={`${worker.name}${worker.birthDate}`}>
+                                            <td className={styles.nameTD}>
+                                                <DeleteIcon
+                                                    w={4}
+                                                    h={4}
+                                                    color="red.300"
+                                                    cursor="pointer"
+                                                    onClick={() => {
+                                                        deleteModal.onOpen();
+                                                        setClickedWorker((prev) => {
+                                                            prev = { ...worker };
+                                                            return prev;
+                                                        });
+                                                    }}
+                                                />
+                                                {worker.name}
+                                                <span></span>
+                                            </td>
                                             <td>{worker.birthDate}</td>
                                             <td>{worker.phoneNumber}</td>
                                             <td>{worker.workStartDate}</td>
-                                            <td>1년차</td>
+                                            <td>{`${workYear + 1}년차`}</td>
                                         </tr>
                                     );
                                 })}
@@ -158,7 +194,12 @@ const Workers = () => {
                     </div>
                 </section>
             </Layout>
-            <Modal initialFocusRef={initialRef} finalFocusRef={finalRef} isOpen={isOpen} onClose={onClose}>
+            <Modal
+                initialFocusRef={initialRef}
+                finalFocusRef={finalRef}
+                isOpen={addModal.isOpen}
+                onClose={addModal.onClose}
+            >
                 <ModalOverlay />
                 <ModalContent>
                     <form onSubmit={onSubmitHandler}>
@@ -166,30 +207,6 @@ const Workers = () => {
                         <ModalCloseButton />
                         <ModalBody pb={6}>
                             <Stack>
-                                <FormControl isRequired>
-                                    <FormLabel fontWeight="bold">아이디</FormLabel>
-                                    <Input
-                                        ref={initialRef}
-                                        type="email"
-                                        value={email}
-                                        onChange={changeEmail}
-                                        placeholder="이메일 형식으로 입력해주세요."
-                                        _placeholder={{ fontSize: "0.9rem" }}
-                                    />
-                                </FormControl>
-                                <FormControl isRequired>
-                                    <FormLabel fontWeight="bold">비밀번호</FormLabel>
-                                    <InputGroup>
-                                        <Input
-                                            type={"text"}
-                                            value={password}
-                                            onChange={changePassword}
-                                            placeholder="6글자 이상 입력해주세요."
-                                            minLength={6}
-                                            _placeholder={{ fontSize: "0.9rem" }}
-                                        />
-                                    </InputGroup>
-                                </FormControl>
                                 <FormControl isRequired>
                                     <FormLabel fontWeight="bold">이름</FormLabel>
                                     <Input
@@ -256,11 +273,39 @@ const Workers = () => {
                             <Button colorScheme="blue" mr={3} type="submit">
                                 저장
                             </Button>
-                            <Button onClick={onClose}>취소</Button>
+                            <Button onClick={addModal.onClose}>취소</Button>
                         </ModalFooter>
                     </form>
                 </ModalContent>
             </Modal>
+            <AlertDialog isOpen={deleteModal.isOpen} leastDestructiveRef={cancelRef} onClose={deleteModal.onClose}>
+                <AlertDialogOverlay>
+                    <AlertDialogContent>
+                        <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                            직원 삭제
+                        </AlertDialogHeader>
+
+                        <AlertDialogBody>정말로 삭제하시겠습니까?</AlertDialogBody>
+
+                        <AlertDialogFooter>
+                            <Button ref={cancelRef} onClick={deleteModal.onClose}>
+                                취소
+                            </Button>
+                            <Button
+                                colorScheme="red"
+                                onClick={() => {
+                                    deleteHandler(clickedWorker);
+                                    deleteModal.onClose();
+                                }}
+                                ml={3}
+                            >
+                                삭제
+                            </Button>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialogOverlay>
+            </AlertDialog>
+            ;
         </>
     );
 };
