@@ -31,7 +31,7 @@ import DatePicker from "react-datepicker";
 import ko from "date-fns/locale/ko";
 import "react-datepicker/dist/react-datepicker.css";
 import useDocQuery from "hooks/useDocQuery";
-import { arrayRemove, arrayUnion, collection, doc, setDoc, updateDoc } from "firebase/firestore";
+import { arrayRemove, arrayUnion, collection, deleteField, doc, setDoc, updateDoc } from "firebase/firestore";
 import { auth, db } from "firebaseConfig/firebase";
 import { differenceInYears, format } from "date-fns";
 import Spinner from "components/spinner/Spinner";
@@ -48,32 +48,39 @@ const Workers = () => {
     const [workStartDate, setWorkStartDate] = useState<Date | null>(null);
     const [name, setName] = useState<string>("");
     const [phoneNumber, setPhoneNumber] = useState<string>("");
-    const [clickedWorker, setClickedWorker] = useState({
+    const [clickedWorker, setClickedWorker] = useState<WorkerType>({
         role: "",
         name: "",
         phoneNumber: "",
         birthDate: "",
-        workStartDate: "x",
+        workStartDate: "",
+        workerUid: "",
     });
+
     const userInfo = useDocQuery("users");
+    const workersInfo: WorkerType[] | undefined = userInfo.data && Object.values(userInfo?.data?.workers);
     const toast = useToast();
     const userUid = sessionStorage.getItem("signIn") ?? "empty";
     const onSubmitHandler = useCallback(
         (e: React.FormEvent<HTMLElement>) => {
             e.preventDefault();
             const saveUser = async () => {
+                let uuid = crypto.randomUUID();
                 try {
                     if (birthDate !== null && workStartDate !== null) {
                         await setDoc(
                             doc(db, "users", userUid),
                             {
-                                workers: arrayUnion({
-                                    role: "workers",
-                                    name,
-                                    phoneNumber,
-                                    birthDate: format(birthDate, "yyyy/MM/dd"),
-                                    workStartDate: format(workStartDate, "yyyy/MM/dd"),
-                                }),
+                                workers: {
+                                    [uuid]: {
+                                        name,
+                                        phoneNumber,
+                                        birthDate: format(birthDate, "yyyy/MM/dd"),
+                                        workStartDate: format(workStartDate, "yyyy/MM/dd"),
+                                        role: "worker",
+                                        workerUid: uuid,
+                                    },
+                                },
                             },
                             { merge: true }
                         );
@@ -104,17 +111,13 @@ const Workers = () => {
     );
 
     const deleteHandler = (worker: WorkerType) => {
+        const keyName = `workers.${clickedWorker.workerUid}`;
         const deleteUser = async () => {
             try {
                 await updateDoc(doc(db, "users", userUid), {
-                    workers: arrayRemove({
-                        birthDate: worker.birthDate,
-                        name: worker.name,
-                        phoneNumber: worker.phoneNumber,
-                        role: worker.role,
-                        workStartDate: worker.workStartDate,
-                    }),
+                    [keyName]: deleteField(),
                 });
+                editModal.onClose();
                 toast({
                     title: `직원 삭제를 성공하였습니다.`,
                     status: "success",
@@ -134,8 +137,6 @@ const Workers = () => {
         deleteUser();
         console.log(auth);
     };
-
-    if (userInfo.isLoading) return <Spinner />;
     return (
         <>
             <Layout>
@@ -162,7 +163,7 @@ const Workers = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {userInfo?.data?.workers.map((worker: WorkerType) => {
+                                {workersInfo?.map((worker: WorkerType) => {
                                     const workYear = differenceInYears(new Date(), new Date(worker.workStartDate));
                                     return (
                                         <tr key={`${worker.name}${worker.birthDate}`}>
@@ -174,6 +175,7 @@ const Workers = () => {
                                                             prev = { ...worker };
                                                             return prev;
                                                         });
+
                                                         editModal.onOpen();
                                                     }}
                                                 >
@@ -286,23 +288,24 @@ const Workers = () => {
                         <AlertDialogBody>정말로 삭제하시겠습니까?</AlertDialogBody>
 
                         <AlertDialogFooter>
-                            <Button ref={cancelRef} onClick={deleteModal.onClose}>
-                                취소
-                            </Button>
                             <Button
                                 colorScheme="red"
                                 onClick={() => {
                                     deleteHandler(clickedWorker);
                                     deleteModal.onClose();
                                 }}
-                                ml={3}
                             >
                                 삭제
+                            </Button>
+                            <Button ref={cancelRef} onClick={deleteModal.onClose} ml={3}>
+                                취소
                             </Button>
                         </AlertDialogFooter>
                     </AlertDialogContent>
                 </AlertDialogOverlay>
             </AlertDialog>
+
+            {/* EditModal */}
             <Modal
                 initialFocusRef={initialRef}
                 finalFocusRef={finalRef}
@@ -311,8 +314,28 @@ const Workers = () => {
             >
                 <ModalOverlay />
                 <ModalContent>
-                    <form onSubmit={onSubmitHandler}>
-                        <ModalHeader>직원 추가하기</ModalHeader>
+                    <form
+                        onSubmit={async (e) => {
+                            e.preventDefault();
+                            const keyName = `workers.${clickedWorker.workerUid}`;
+                            try {
+                                await updateDoc(doc(db, "users", userUid), {
+                                    [keyName]: {
+                                        name: clickedWorker.name,
+                                        phoneNumber: clickedWorker.phoneNumber,
+                                        birthDate: clickedWorker.birthDate,
+                                        workStartDate: clickedWorker.workStartDate,
+                                        role: "worker",
+                                        workerUid: clickedWorker.workerUid,
+                                    },
+                                });
+                                editModal.onClose();
+                            } catch (error) {
+                                console.log(error);
+                            }
+                        }}
+                    >
+                        <ModalHeader>직원 수정하기</ModalHeader>
                         <ModalCloseButton />
                         <ModalBody pb={6}>
                             <Stack>
@@ -320,10 +343,14 @@ const Workers = () => {
                                     <FormLabel fontWeight="bold">이름</FormLabel>
                                     <Input
                                         placeholder="이름"
-                                        value={name}
+                                        value={clickedWorker.name}
                                         type="text"
                                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                            setName(e.target.value);
+                                            setClickedWorker((prev) => {
+                                                prev = { ...prev };
+                                                prev.name = e.target.value;
+                                                return prev;
+                                            });
                                         }}
                                         required
                                         pattern="[a-zA-Z0-9ㄱ-ㅎ가-힣]{1,}"
@@ -333,8 +360,14 @@ const Workers = () => {
                                 <FormControl isRequired>
                                     <FormLabel fontWeight="bold">생년월일</FormLabel>
                                     <DatePicker
-                                        selected={birthDate}
-                                        onChange={(date) => setBirthDate(date)}
+                                        selected={new Date(clickedWorker.birthDate)}
+                                        onChange={(date: Date) => {
+                                            setClickedWorker((prev) => {
+                                                prev = { ...prev };
+                                                prev.birthDate = format(date, "yyyy/MM/dd");
+                                                return prev;
+                                            });
+                                        }}
                                         className={styles.modalInput}
                                         dateFormat="yyyy/MM/dd"
                                         locale={ko}
@@ -350,9 +383,13 @@ const Workers = () => {
                                     <FormLabel fontWeight="bold">연락처</FormLabel>
                                     <Input
                                         placeholder="예시) 01012345678"
-                                        value={phoneNumber}
+                                        value={clickedWorker.phoneNumber}
                                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                            setPhoneNumber(e.target.value);
+                                            setClickedWorker((prev) => {
+                                                prev = { ...prev };
+                                                prev.phoneNumber = e.target.value;
+                                                return prev;
+                                            });
                                         }}
                                         required
                                         type="tel"
@@ -362,8 +399,14 @@ const Workers = () => {
                                 <FormControl isRequired>
                                     <FormLabel fontWeight="bold">입사일</FormLabel>
                                     <DatePicker
-                                        selected={workStartDate}
-                                        onChange={(date) => setWorkStartDate(date)}
+                                        selected={new Date(clickedWorker.workStartDate)}
+                                        onChange={(date: Date) => {
+                                            setClickedWorker((prev) => {
+                                                prev = { ...prev };
+                                                prev.workStartDate = format(date, "yyyy/MM/dd");
+                                                return prev;
+                                            });
+                                        }}
                                         className={styles.modalInput}
                                         dateFormat="yyyy/MM/dd"
                                         locale={ko}
@@ -379,6 +422,9 @@ const Workers = () => {
                         </ModalBody>
 
                         <ModalFooter>
+                            <Button colorScheme="red" mr={3} onClick={deleteModal.onOpen}>
+                                삭제
+                            </Button>
                             <Button colorScheme="blue" mr={3} type="submit">
                                 저장
                             </Button>

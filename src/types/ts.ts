@@ -4,4 +4,6 @@ export interface WorkerType {
     phoneNumber: string;
     role: string;
     workStartDate: string;
+    workerUid: string
+    
 } 
