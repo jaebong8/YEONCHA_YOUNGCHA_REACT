@@ -135,8 +135,51 @@ const Workers = () => {
             }
         };
         deleteUser();
-        console.log(auth);
     };
+
+    const editBtnClickHandler = useCallback(
+        (worker: WorkerType) => {
+            setClickedWorker((prev) => {
+                prev = { ...worker };
+                return prev;
+            });
+
+            editModal.onOpen();
+        },
+        [editModal]
+    );
+
+    const editSubmitHandler = useCallback(
+        async (e: React.FormEvent<HTMLElement>) => {
+            e.preventDefault();
+            const keyName = `workers.${clickedWorker.workerUid}`;
+            try {
+                await updateDoc(doc(db, "users", userUid), {
+                    [keyName]: {
+                        name: clickedWorker.name,
+                        phoneNumber: clickedWorker.phoneNumber,
+                        birthDate: clickedWorker.birthDate,
+                        workStartDate: clickedWorker.workStartDate,
+                        role: "worker",
+                        workerUid: clickedWorker.workerUid,
+                    },
+                });
+                editModal.onClose();
+            } catch (error) {
+                console.log(error);
+            }
+        },
+        [
+            clickedWorker.name,
+            clickedWorker.phoneNumber,
+            clickedWorker.birthDate,
+            clickedWorker.workStartDate,
+            clickedWorker.workerUid,
+            editModal,
+            userUid,
+        ]
+    );
+
     return (
         <>
             <Layout>
@@ -171,12 +214,7 @@ const Workers = () => {
                                                 <button
                                                     className={styles.editBtn}
                                                     onClick={() => {
-                                                        setClickedWorker((prev) => {
-                                                            prev = { ...worker };
-                                                            return prev;
-                                                        });
-
-                                                        editModal.onOpen();
+                                                        editBtnClickHandler(worker);
                                                     }}
                                                 >
                                                     {worker.name} <EditIcon />
@@ -314,27 +352,7 @@ const Workers = () => {
             >
                 <ModalOverlay />
                 <ModalContent>
-                    <form
-                        onSubmit={async (e) => {
-                            e.preventDefault();
-                            const keyName = `workers.${clickedWorker.workerUid}`;
-                            try {
-                                await updateDoc(doc(db, "users", userUid), {
-                                    [keyName]: {
-                                        name: clickedWorker.name,
-                                        phoneNumber: clickedWorker.phoneNumber,
-                                        birthDate: clickedWorker.birthDate,
-                                        workStartDate: clickedWorker.workStartDate,
-                                        role: "worker",
-                                        workerUid: clickedWorker.workerUid,
-                                    },
-                                });
-                                editModal.onClose();
-                            } catch (error) {
-                                console.log(error);
-                            }
-                        }}
-                    >
+                    <form onSubmit={editSubmitHandler}>
                         <ModalHeader>직원 수정하기</ModalHeader>
                         <ModalCloseButton />
                         <ModalBody pb={6}>
@@ -421,14 +439,16 @@ const Workers = () => {
                             </Stack>
                         </ModalBody>
 
-                        <ModalFooter>
+                        <ModalFooter justifyContent="space-between">
                             <Button colorScheme="red" mr={3} onClick={deleteModal.onOpen}>
                                 삭제
                             </Button>
-                            <Button colorScheme="blue" mr={3} type="submit">
-                                저장
-                            </Button>
-                            <Button onClick={editModal.onClose}>취소</Button>
+                            <div>
+                                <Button colorScheme="blue" mr={3} type="submit">
+                                    저장
+                                </Button>
+                                <Button onClick={editModal.onClose}>취소</Button>
+                            </div>
                         </ModalFooter>
                     </form>
                 </ModalContent>
