@@ -20,6 +20,7 @@ import SignBtn from "components/SignBtn";
 import { useAuthSignInWithEmailAndPassword, useAuthSignOut, useAuthIdToken } from "@react-query-firebase/auth";
 import { auth, db } from "firebaseConfig/firebase";
 import withAuth from "components/hoc/withAuth";
+import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 
 const SignIn = () => {
     const [email, setEmail, changeEmail] = useInput("");
@@ -83,24 +84,24 @@ const SignIn = () => {
                 <Img boxSize="150px" objectFit="cover" src={logo} alt="mainIcon" mb="4" />
                 <form onSubmit={onSubmitHandler} className={styles.form}>
                     <FormControl isRequired>
-                        <FormLabel>Email</FormLabel>
+                        <FormLabel>이메일</FormLabel>
                         <Input
                             type="email"
                             value={email}
                             onChange={changeEmail}
-                            placeholder="Enter Email"
+                            placeholder="이메일 형식으로 입력해주세요."
                             variant="flushed"
                             _placeholder={{ fontSize: "0.9rem" }}
                         />
                     </FormControl>
                     <FormControl isRequired mt="2">
-                        <FormLabel>Password</FormLabel>
+                        <FormLabel>비밀번호</FormLabel>
                         <InputGroup>
                             <Input
                                 type={show ? "text" : "password"}
                                 value={password}
                                 onChange={changePassword}
-                                placeholder="Enter Password"
+                                placeholder="6글자 이상으로 입력해주세요."
                                 variant="flushed"
                                 minLength={6}
                                 _placeholder={{ fontSize: "0.9rem" }}
@@ -108,7 +109,7 @@ const SignIn = () => {
 
                             <InputRightElement>
                                 <Button h="1.75rem" size="sm" onClick={handleClick}>
-                                    {show ? "Hide" : "Show"}
+                                    {show ? <ViewOffIcon /> : <ViewIcon />}
                                 </Button>
                             </InputRightElement>
                         </InputGroup>

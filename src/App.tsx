@@ -3,6 +3,8 @@ import SignIn from "pages/auth/signIn/SignIn";
 import SignUp from "pages/auth/signUp/SignUp";
 import Home from "pages/Home";
 import Workers from "pages/workers/Workers";
+import Admin from "pages/auth/signUp/Admin";
+import Worker from "pages/auth/signUp/Worker";
 
 const router = createBrowserRouter([
     {
@@ -16,6 +18,16 @@ const router = createBrowserRouter([
     {
         path: "/auth/signUp",
         element: <SignUp />,
+        children: [
+            {
+                path: "admin",
+                element: <Admin />,
+            },
+            {
+                path: "worker",
+                element: <Worker />,
+            },
+        ],
     },
     {
         path: "/workers",

@@ -32,6 +32,11 @@
                         background-color: #efefef;
                         padding: 1rem;
                         border-bottom: 1px solid #fff;
+                        &:nth-child(1) {
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                        }
                         .editBtn {
                             display: flex;
                             align-items: center;
