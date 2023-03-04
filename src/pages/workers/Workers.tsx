@@ -57,7 +57,7 @@ const Workers = () => {
         workerUid: "",
     });
 
-    const userInfo = useDocQuery("users");
+    const userInfo = useDocQuery("admins");
     const workersInfo: WorkerType[] | undefined = userInfo.data && Object.values(userInfo?.data?.workers);
     const toast = useToast();
     const userUid = sessionStorage.getItem("signIn") ?? "empty";
@@ -69,7 +69,7 @@ const Workers = () => {
                 try {
                     if (birthDate !== null && workStartDate !== null) {
                         await setDoc(
-                            doc(db, "users", userUid),
+                            doc(db, "admins", userUid),
                             {
                                 workers: {
                                     [uuid]: {
@@ -114,7 +114,7 @@ const Workers = () => {
         const keyName = `workers.${clickedWorker.workerUid}`;
         const deleteUser = async () => {
             try {
-                await updateDoc(doc(db, "users", userUid), {
+                await updateDoc(doc(db, "admins", userUid), {
                     [keyName]: deleteField(),
                 });
                 editModal.onClose();
@@ -154,7 +154,7 @@ const Workers = () => {
             e.preventDefault();
             const keyName = `workers.${clickedWorker.workerUid}`;
             try {
-                await updateDoc(doc(db, "users", userUid), {
+                await updateDoc(doc(db, "admins", userUid), {
                     [keyName]: {
                         name: clickedWorker.name,
                         phoneNumber: clickedWorker.phoneNumber,
@@ -163,6 +163,12 @@ const Workers = () => {
                         role: "worker",
                         workerUid: clickedWorker.workerUid,
                     },
+                });
+                toast({
+                    title: `직원 수정을 성공하였습니다.`,
+                    status: "success",
+                    duration: 5000,
+                    isClosable: true,
                 });
                 editModal.onClose();
             } catch (error) {

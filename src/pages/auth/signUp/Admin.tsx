@@ -7,8 +7,9 @@ import { auth, db } from "firebaseConfig/firebase";
 import { useToast } from "@chakra-ui/react";
 import LoginLink from "components/loginLink/LoginLink";
 import SignBtn from "components/SignBtn";
-import { doc, setDoc } from "firebase/firestore";
+import { arrayUnion, doc, setDoc, updateDoc } from "firebase/firestore";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
+import useDocDataQuery from "hooks/useDocDataQuery";
 
 const Admin = () => {
     const [email, setEmail, changeEmail] = useInput("");
@@ -20,6 +21,8 @@ const Admin = () => {
     const [showCheck, setShowCheck] = useState(false);
     const handleClickCheck = () => setShowCheck(!showCheck);
     const toast = useToast();
+    const companysInfo = useDocDataQuery("companys", "company")
+    
 
     const mutation = useAuthCreateUserWithEmailAndPassword(auth, {
         onSuccess(user) {
@@ -32,15 +35,15 @@ const Admin = () => {
             });
             const saveUser = async () => {
                 const uid = user.user.uid;
-                await setDoc(doc(db, "users", uid), {
+                await setDoc(doc(db, "admins", uid), {
                     userUid: uid,
                     role: "admin",
                     email: email,
                     company: companyName,
                     workers: [],
                 });
-                await setDoc(doc(db, "company", "company"), {
-                    company: companyName,
+                await updateDoc(doc(db, "companys", "company"), {
+                    companys: arrayUnion(companyName),
                 });
             };
 
@@ -90,6 +93,16 @@ const Admin = () => {
             });
             return;
         }
+        if(companysInfo?.data?.companys.includes(companyName)){
+            toast({
+                title: "이미 존재하는 회사입니다.",
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+            });
+            return
+        }
+        
         mutation.mutate({
             email,
             password,
