@@ -188,56 +188,49 @@ const Workers = () => {
 
     return (
         <>
-            <Layout>
-                <section className={styles.section}>
-                    <Button
-                        leftIcon={<AddIcon />}
-                        colorScheme="teal"
-                        variant="solid"
-                        size="sm"
-                        onClick={addModal.onOpen}
-                    >
-                        직원 추가하기
-                    </Button>
-                    <div className={styles.tableContainer}>
-                        <table>
-                            <caption>직원 목록</caption>
-                            <thead>
-                                <tr>
-                                    <th>이름</th>
-                                    <th>생년월일</th>
-                                    <th>연락처</th>
-                                    <th>입사일</th>
-                                    <th>년차</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {workersInfo?.map((worker: WorkerType) => {
-                                    const workYear = differenceInYears(new Date(), new Date(worker.workStartDate));
-                                    return (
-                                        <tr key={`${worker.name}${worker.birthDate}`}>
-                                            <td>
-                                                <button
-                                                    className={styles.editBtn}
-                                                    onClick={() => {
-                                                        editBtnClickHandler(worker);
-                                                    }}
-                                                >
-                                                    {worker.name} <EditIcon />
-                                                </button>
-                                            </td>
-                                            <td>{worker.birthDate}</td>
-                                            <td>{worker.phoneNumber}</td>
-                                            <td>{worker.workStartDate}</td>
-                                            <td>{`${workYear + 1}년차`}</td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
-            </Layout>
+            <section className={styles.section}>
+                <Button leftIcon={<AddIcon />} colorScheme="teal" variant="solid" size="sm" onClick={addModal.onOpen}>
+                    직원 추가하기
+                </Button>
+                <div className={styles.tableContainer}>
+                    <table>
+                        <caption>직원 목록</caption>
+                        <thead>
+                            <tr>
+                                <th>이름</th>
+                                <th>생년월일</th>
+                                <th>연락처</th>
+                                <th>입사일</th>
+                                <th>년차</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {workersInfo?.map((worker: WorkerType) => {
+                                const workYear = differenceInYears(new Date(), new Date(worker.workStartDate));
+                                return (
+                                    <tr key={`${worker.name}${worker.birthDate}`}>
+                                        <td>
+                                            <button
+                                                className={styles.editBtn}
+                                                onClick={() => {
+                                                    editBtnClickHandler(worker);
+                                                }}
+                                            >
+                                                {worker.name} <EditIcon />
+                                            </button>
+                                        </td>
+                                        <td>{worker.birthDate}</td>
+                                        <td>{worker.phoneNumber}</td>
+                                        <td>{worker.workStartDate}</td>
+                                        <td>{`${workYear + 1}년차`}</td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
             <Modal
                 initialFocusRef={initialRef}
                 finalFocusRef={finalRef}

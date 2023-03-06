@@ -19,7 +19,7 @@ function withAuth(Component: ComponentType) {
             if (tokenResult.isLoading) return;
             //로그인한 상태
             if (isLogin && pathName === "/auth/signin") {
-                navigate("/");
+                navigate("/calendar");
             } else if (!isLogin && !(pathName === "/auth/signin" || pathName === "/auth/signup")) {
                 navigate("/auth/signin");
             }

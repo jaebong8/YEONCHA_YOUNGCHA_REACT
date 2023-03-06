@@ -18,9 +18,8 @@ const Home = () => {
     return (
         <>
             <Layout>
-                <Calendar />
+                <Outlet />
             </Layout>
-            <Outlet />
         </>
     );
 };
