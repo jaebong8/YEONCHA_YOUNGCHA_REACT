@@ -35,13 +35,18 @@ const Layout = (props: { children: React.ReactNode }) => {
                     <div className={styles.spacing}></div>
                     <ul className={styles.navLinks}>
                         <li>
-                            <NavLink to="/" style={({ isActive }) => (isActive ? activeStyle : undefined)}>
+                            <NavLink to="/calendar" style={({ isActive }) => (isActive ? activeStyle : undefined)}>
                                 홈
                             </NavLink>
                         </li>
                         <li>
                             <NavLink to="/workers" style={({ isActive }) => (isActive ? activeStyle : undefined)}>
                                 직원 관리
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink to="/documents" style={({ isActive }) => (isActive ? activeStyle : undefined)}>
+                                문서 관리
                             </NavLink>
                         </li>
                     </ul>

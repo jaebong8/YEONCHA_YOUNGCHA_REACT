@@ -2,14 +2,30 @@ import { createBrowserRouter, redirect, RouterProvider, useNavigate } from "reac
 import SignIn from "pages/auth/signIn/SignIn";
 import SignUp from "pages/auth/signUp/SignUp";
 import Home from "pages/Home";
-import Workers from "pages/workers/Workers";
 import Admin from "pages/auth/signUp/Admin";
 import Worker from "pages/auth/signUp/Worker";
+import Calendar from "components/calendar/Calendar";
+import DocumentsPage from "pages/documentsPage/DocumentsPage";
+import WorkersPage from "pages/workersPage/WorkersPage";
 
 const router = createBrowserRouter([
     {
         path: "/",
         element: <Home />,
+        children: [
+            {
+                path: "calendar",
+                element: <Calendar />,
+            },
+            {
+                path: "workers",
+                element: <WorkersPage />,
+            },
+            {
+                path: "documents",
+                element: <DocumentsPage />,
+            },
+        ],
     },
     {
         path: "/auth/signin",
@@ -28,10 +44,6 @@ const router = createBrowserRouter([
                 element: <Worker />,
             },
         ],
-    },
-    {
-        path: "/workers",
-        element: <Workers />,
     },
 ]);
 const App = () => {

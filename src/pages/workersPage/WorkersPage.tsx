@@ -57,7 +57,7 @@ const Workers = () => {
         workerUid: "",
     });
 
-    const userInfo = useDocQuery("admins");
+    const userInfo = useDocQuery("users");
     const workersInfo: WorkerType[] | undefined = userInfo.data && Object.values(userInfo?.data?.workers);
     const toast = useToast();
     const userUid = sessionStorage.getItem("signIn") ?? "empty";
@@ -69,7 +69,7 @@ const Workers = () => {
                 try {
                     if (birthDate !== null && workStartDate !== null) {
                         await setDoc(
-                            doc(db, "admins", userUid),
+                            doc(db, "users", userUid),
                             {
                                 workers: {
                                     [uuid]: {
@@ -114,7 +114,7 @@ const Workers = () => {
         const keyName = `workers.${clickedWorker.workerUid}`;
         const deleteUser = async () => {
             try {
-                await updateDoc(doc(db, "admins", userUid), {
+                await updateDoc(doc(db, "users", userUid), {
                     [keyName]: deleteField(),
                 });
                 editModal.onClose();
@@ -154,7 +154,7 @@ const Workers = () => {
             e.preventDefault();
             const keyName = `workers.${clickedWorker.workerUid}`;
             try {
-                await updateDoc(doc(db, "admins", userUid), {
+                await updateDoc(doc(db, "users", userUid), {
                     [keyName]: {
                         name: clickedWorker.name,
                         phoneNumber: clickedWorker.phoneNumber,
@@ -188,56 +188,49 @@ const Workers = () => {
 
     return (
         <>
-            <Layout>
-                <section className={styles.section}>
-                    <Button
-                        leftIcon={<AddIcon />}
-                        colorScheme="teal"
-                        variant="solid"
-                        size="sm"
-                        onClick={addModal.onOpen}
-                    >
-                        직원 추가하기
-                    </Button>
-                    <div className={styles.tableContainer}>
-                        <table>
-                            <caption>직원 목록</caption>
-                            <thead>
-                                <tr>
-                                    <th>이름</th>
-                                    <th>생년월일</th>
-                                    <th>연락처</th>
-                                    <th>입사일</th>
-                                    <th>년차</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {workersInfo?.map((worker: WorkerType) => {
-                                    const workYear = differenceInYears(new Date(), new Date(worker.workStartDate));
-                                    return (
-                                        <tr key={`${worker.name}${worker.birthDate}`}>
-                                            <td>
-                                                <button
-                                                    className={styles.editBtn}
-                                                    onClick={() => {
-                                                        editBtnClickHandler(worker);
-                                                    }}
-                                                >
-                                                    {worker.name} <EditIcon />
-                                                </button>
-                                            </td>
-                                            <td>{worker.birthDate}</td>
-                                            <td>{worker.phoneNumber}</td>
-                                            <td>{worker.workStartDate}</td>
-                                            <td>{`${workYear + 1}년차`}</td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
-            </Layout>
+            <section className={styles.section}>
+                <Button leftIcon={<AddIcon />} colorScheme="teal" variant="solid" size="sm" onClick={addModal.onOpen}>
+                    직원 추가하기
+                </Button>
+                <div className={styles.tableContainer}>
+                    <table>
+                        <caption>직원 목록</caption>
+                        <thead>
+                            <tr>
+                                <th>이름</th>
+                                <th>생년월일</th>
+                                <th>연락처</th>
+                                <th>입사일</th>
+                                <th>년차</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {workersInfo?.map((worker: WorkerType) => {
+                                const workYear = differenceInYears(new Date(), new Date(worker.workStartDate));
+                                return (
+                                    <tr key={`${worker.name}${worker.birthDate}`}>
+                                        <td>
+                                            <button
+                                                className={styles.editBtn}
+                                                onClick={() => {
+                                                    editBtnClickHandler(worker);
+                                                }}
+                                            >
+                                                {worker.name} <EditIcon />
+                                            </button>
+                                        </td>
+                                        <td>{worker.birthDate}</td>
+                                        <td>{worker.phoneNumber}</td>
+                                        <td>{worker.workStartDate}</td>
+                                        <td>{`${workYear + 1}년차`}</td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
             <Modal
                 initialFocusRef={initialRef}
                 finalFocusRef={finalRef}
