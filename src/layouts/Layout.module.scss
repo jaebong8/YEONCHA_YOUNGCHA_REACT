@@ -3,7 +3,7 @@
     flex-direction: column;
     height: 100vh;
     .topNavBar {
-        height: 60px;
+        min-height: 60px;
         width: 100%;
         display: flex;
         justify-content: space-between;

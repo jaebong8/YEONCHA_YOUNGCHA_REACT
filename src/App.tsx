@@ -2,7 +2,6 @@ import { createBrowserRouter, redirect, RouterProvider, useNavigate } from "reac
 import SignIn from "pages/auth/signIn/SignIn";
 import SignUp from "pages/auth/signUp/SignUp";
 import Home from "pages/Home";
-import Workers from "pages/workersPage/WorkersPage";
 import Admin from "pages/auth/signUp/Admin";
 import Worker from "pages/auth/signUp/Worker";
 import Calendar from "components/calendar/Calendar";
