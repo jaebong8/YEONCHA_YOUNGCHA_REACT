@@ -125,3 +125,18 @@ table {
 html {
     font-size: 15px;
 }
+
+.react-datepicker__input-container {
+    > input {
+        height: 2.5rem;
+        width: 100%;
+        outline: 2px solid transparent;
+        outline-offset: 2px;
+        border-bottom: 1px solid;
+        transition-duration: 200ms;
+        &:focus {
+            border-color: #3182ce;
+            box-shadow: 0px 1px 0px 0px #3182ce;
+        }
+    }
+}

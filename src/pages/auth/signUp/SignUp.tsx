@@ -9,8 +9,8 @@ const SignUp = () => {
     const pathName = location.pathname;
 
     return (
-        <Center h="100vh">
-            <Center bg="#FFFFFF" h="100%" w="sm" flexDir="column">
+        <Center position="relative">
+            <Center bg="#FFFFFF" minH="100vh" w="sm" flexDir="column" p="10px 0">
                 <Img boxSize="150px" objectFit="cover" src={logo} alt="mainIcon" mb="4" />
                 {pathName === "/auth/signup" && (
                     <Stack w="80%" minW="180px" spacing="4">

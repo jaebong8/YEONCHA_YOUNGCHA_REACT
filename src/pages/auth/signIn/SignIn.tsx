@@ -1,5 +1,4 @@
 import React, { useCallback, useState } from "react";
-import styles from "./SignIn.module.scss";
 import {
     FormControl,
     FormLabel,
@@ -11,6 +10,7 @@ import {
     Container,
     Center,
     useToast,
+    Box,
 } from "@chakra-ui/react";
 import useInput from "hooks/useInput";
 import LoginLink from "components/loginLink/LoginLink";
@@ -82,7 +82,7 @@ const SignIn = () => {
         <Center h="100vh">
             <Center bg="#FFFFFF" h="100%" w="sm" flexDir="column">
                 <Img boxSize="150px" objectFit="cover" src={logo} alt="mainIcon" mb="4" />
-                <form onSubmit={onSubmitHandler} className={styles.form}>
+                <Box as="form" onSubmit={onSubmitHandler} w="100%" p="0 30px 30px 30px">
                     <FormControl isRequired>
                         <FormLabel>이메일</FormLabel>
                         <Input
@@ -116,7 +116,7 @@ const SignIn = () => {
                     </FormControl>
                     <SignBtn title="로그인" />
                     <LoginLink />
-                </form>
+                </Box>
             </Center>
         </Center>
     );
