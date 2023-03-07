@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styles from "pages/auth/signIn/SignIn.module.scss";
-import { FormControl, FormLabel, Input, InputGroup, InputRightElement, Button } from "@chakra-ui/react";
+import { FormControl, FormLabel, Input, InputGroup, InputRightElement, Button, Box } from "@chakra-ui/react";
 import useInput from "hooks/useInput";
 import { useAuthCreateUserWithEmailAndPassword } from "@react-query-firebase/auth";
 import { auth, db } from "firebaseConfig/firebase";
@@ -108,7 +108,7 @@ const Admin = () => {
         });
     };
     return (
-        <form onSubmit={onSubmitHandler} className={styles.form}>
+        <Box as="form" onSubmit={onSubmitHandler} p="0 30px 30px 30px" w="100%">
             <FormControl isRequired>
                 <FormLabel>이메일</FormLabel>
                 <Input
@@ -171,7 +171,7 @@ const Admin = () => {
             </FormControl>
             <SignBtn title="회원가입" />
             <LoginLink />
-        </form>
+        </Box>
     );
 };
 
