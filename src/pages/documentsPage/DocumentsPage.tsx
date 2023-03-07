@@ -24,6 +24,7 @@ import { useRef, useState, useCallback } from "react";
 import DatePicker from "react-datepicker";
 import { useOutletContext } from "react-router-dom";
 import { UserType } from "types/ts";
+import { getUid } from "utils/common";
 const DocumentsPage = () => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [title, setTitle, changeTitle] = useInput("");
@@ -36,36 +37,58 @@ const DocumentsPage = () => {
 
     const onSubmitHandler = (e: React.FormEvent<HTMLElement>) => {
         e.preventDefault();
-        if (startDate === null || endDate === null) return;
+        if (startDate === null || endDate === null) {
+            toast({
+                title: "기간을 선택해주세요.",
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+            });
+            return;
+        }
         if (startDate !== null && endDate !== null) {
             const saveDoc = async () => {
                 const company = userInfo.company;
                 const userUid = userInfo.userUid;
-                await setDoc(
-                    doc(db, "documents", company),
-                    {
-                        [userUid]: arrayUnion({
-                            title,
-                            startDate: format(startDate, "yyyy/MM/dd"),
-                            endDate: format(endDate, "yyyy/MM/dd"),
-                            userUid,
-                            createdAt: new Date(),
-                            status: "waiting",
-                        }),
-                    },
-                    { merge: true }
-                );
+                const documentUid = getUid();
+                try {
+                    await setDoc(
+                        doc(db, "documents", company),
+                        {
+                            [userUid]: {
+                                [documentUid]: {
+                                    title,
+                                    startDate: format(startDate, "yyyy/MM/dd"),
+                                    endDate: format(endDate, "yyyy/MM/dd"),
+                                    userUid,
+                                    createdAt: serverTimestamp(),
+                                    status: "waiting",
+                                    documentUid,
+                                },
+                            },
+                        },
+                        { merge: true }
+                    );
+                    toast({
+                        title: "성공적으로 제출됐습니다.",
+                        status: "success",
+                        duration: 5000,
+                        isClosable: true,
+                    });
+                } catch (error) {
+                    console.log(error);
+                    toast({
+                        title: "제출 실패",
+                        status: "error",
+                        duration: 5000,
+                        isClosable: true,
+                    });
+                }
             };
             saveDoc();
             setTitle("");
             setStartDate(null);
             setEndDate(null);
-            toast({
-                title: "성공적으로 제출됐습니다.",
-                status: "success",
-                duration: 5000,
-                isClosable: true,
-            });
         }
     };
     return (
