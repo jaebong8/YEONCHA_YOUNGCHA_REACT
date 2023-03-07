@@ -4,6 +4,13 @@ export interface WorkerType {
     phoneNumber: string;
     role: string;
     workStartDate: string;
-    workerUid: string
-    
+    workerUid: string  
 } 
+
+export interface UserType {
+    company : string;
+    email: string;
+    role: string;
+    userUid: string;
+    workers: WorkerType;
+}
