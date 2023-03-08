@@ -19,13 +19,16 @@ import { NavLink } from "react-router-dom";
 
 import { auth } from "firebaseConfig/firebase";
 import { useAuthSignOut } from "@react-query-firebase/auth";
+import useDocDataQuery from "hooks/useDocDataQuery";
 
 const Layout = (props: { children: React.ReactNode }) => {
     const mutationLogOut = useAuthSignOut(auth);
     let activeStyle = {
         backgroundColor: "#BEE3F8",
-        // color: "#fff",
     };
+    const userUid = auth?.currentUser?.uid ?? "empty";
+    const userInfo = useDocDataQuery("users", userUid);
+    console.log(userInfo);
 
     return (
         <div className={styles.container}>
