@@ -22,7 +22,6 @@ import useDocDataQuery from "hooks/useDocDataQuery";
 import DatePicker from "react-datepicker";
 import ko from "date-fns/locale/ko";
 import "react-datepicker/dist/react-datepicker.css";
-import { useFirestoreDocumentData, useFirestoreQueryData } from "@react-query-firebase/firestore";
 import { format } from "date-fns";
 
 const Worker = () => {
@@ -34,7 +33,6 @@ const Worker = () => {
     const [workStartDate, setWorkStartDate, changeWorkStartDate] = useInput(null);
     const [name, setName, changeName] = useInput("");
     const [phoneNumber, setPhoneNumber, changePhoneNumber] = useInput("");
-    const [adminUid, setAdminUid] = useState("");
     const [show, setShow] = useState(false);
     const handleClick = () => setShow(!show);
     const [showCheck, setShowCheck] = useState(false);
@@ -50,8 +48,11 @@ const Worker = () => {
                     userUid: uid,
                     role: "worker",
                     email: email,
-                    workers: [],
                     company: companyName,
+                    name,
+                    birthDate: format(birthDate, "yyyy/MM/dd"),
+                    workStartDate: format(workStartDate, "yyyy/MM/dd"),
+                    phoneNumber,
                 });
             };
             const saveInAdmin = async () => {
@@ -133,7 +134,6 @@ const Worker = () => {
 
     const onSubmitHandler = (e: React.FormEvent<HTMLElement>) => {
         e.preventDefault();
-        console.log(email, password, passwordCheck, companyName, name, birthDate, phoneNumber, workStartDate);
         if (password !== passwordCheck) {
             toast({
                 title: "비밀번호가 일치하지 않습니다.",

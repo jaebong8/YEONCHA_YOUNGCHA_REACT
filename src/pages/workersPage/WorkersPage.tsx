@@ -183,6 +183,7 @@ const Workers = () => {
             clickedWorker.workerUid,
             editModal,
             userUid,
+            toast,
         ]
     );
 
