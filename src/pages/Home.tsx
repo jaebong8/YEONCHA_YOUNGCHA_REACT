@@ -7,20 +7,7 @@ import Layout from "layouts/Layout";
 import { Outlet } from "react-router-dom";
 import useDocDataQuery from "hooks/useDocDataQuery";
 import Spinner from "components/spinner/Spinner";
-import {
-    Avatar,
-    Box,
-    Button,
-    Menu,
-    MenuButton,
-    MenuDivider,
-    MenuGroup,
-    MenuItem,
-    MenuList,
-    Tab,
-    TabList,
-    Tabs,
-} from "@chakra-ui/react";
+import { Avatar, Menu, MenuButton, MenuDivider, MenuGroup, MenuItem, MenuList } from "@chakra-ui/react";
 import styles from "./Home.module.scss";
 import { Img } from "@chakra-ui/react";
 import longIconPath from "assets/images/longIcon.png";
@@ -28,14 +15,18 @@ import { NavLink } from "react-router-dom";
 
 import { useAuthSignOut } from "@react-query-firebase/auth";
 const Home = () => {
-    const userUid = auth?.currentUser?.uid ?? "empty";
+    const userUid = auth?.currentUser?.uid ?? "temp";
+
     const userInfo = useDocDataQuery("users", userUid)?.data ?? {
-        email: "",
-        role: "",
-        company: "",
-        userUid: "",
+        email: "temp",
+        role: "temp",
+        company: "temp",
+        userUid: "temp",
         workers: {},
+        documents: {},
     };
+
+    const isLoading = useDocDataQuery("users", userUid).isLoading;
     const mutationLogOut = useAuthSignOut(auth);
     let activeStyle = {
         backgroundColor: "#BEE3F8",
@@ -101,7 +92,7 @@ const Home = () => {
                         </Menu>
                     </div>
                 </nav>
-                <Outlet context={{ userInfo, userUid }} />
+                <Outlet context={{ userInfo, userUid, isLoading }} />
             </div>
         </>
     );

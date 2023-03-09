@@ -7,6 +7,7 @@ const useDocDataQuery = (collection: string, document: string) => {
     const product = useFirestoreDocumentData([collection, document], ref, {
         subscribe: true,
     });
+
     return product;
 };
 

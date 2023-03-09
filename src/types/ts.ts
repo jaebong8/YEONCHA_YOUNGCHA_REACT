@@ -21,6 +21,7 @@ export interface UserType {
     workStartDate?: string;
     workerUid?: string ;
     userUid: string;
+    documents: DocType
 
 }
 
@@ -34,4 +35,5 @@ export interface DocType {
     title:string;
     type:string;
     userUid:string;
+    date:string;
 }

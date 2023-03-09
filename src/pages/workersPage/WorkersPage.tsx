@@ -30,12 +30,12 @@ import { useRef, useState, useCallback, useEffect, useContext, useMemo } from "r
 import DatePicker from "react-datepicker";
 import ko from "date-fns/locale/ko";
 import "react-datepicker/dist/react-datepicker.css";
-import useDocQuery from "hooks/useDocQuery";
 import { arrayRemove, arrayUnion, collection, deleteField, doc, setDoc, updateDoc } from "firebase/firestore";
 import { auth, db } from "firebaseConfig/firebase";
 import { differenceInYears, format } from "date-fns";
 import Spinner from "components/spinner/Spinner";
 import { WorkerType } from "types/ts";
+import useDocDataQuery from "hooks/useDocDataQuery";
 
 const Workers = () => {
     const addModal = useDisclosure();
@@ -56,11 +56,11 @@ const Workers = () => {
         workStartDate: "",
         workerUid: "",
     });
-
-    const userInfo = useDocQuery("users");
+    const userUid = sessionStorage.getItem("signIn") ?? "empty";
+    const userInfo = useDocDataQuery("users", userUid);
     const workersInfo: WorkerType[] | undefined = userInfo.data && Object.values(userInfo?.data?.workers);
     const toast = useToast();
-    const userUid = sessionStorage.getItem("signIn") ?? "empty";
+
     const onSubmitHandler = useCallback(
         (e: React.FormEvent<HTMLElement>) => {
             e.preventDefault();
