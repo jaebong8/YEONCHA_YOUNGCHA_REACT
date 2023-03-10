@@ -50,15 +50,7 @@ import { useFirestoreQueryData } from "@react-query-firebase/firestore";
 
 const DocumentsPage = () => {
     const docModal = useDisclosure();
-    const [title, setTitle, changeTitle] = useInput("");
-    const [type, setType, changeType] = useInput("");
-    const initialRef = useRef(null);
-    const finalRef = useRef(null);
-    const [startDate, setStartDate] = useState(null);
-    const [endDate, setEndDate] = useState(null);
-    const toast = useToast();
     const userInfo: UserType = useOutletContext().userInfo;
-    const isLoading = useOutletContext().isLoading;
     const company = userInfo?.company;
     const role = userInfo?.role;
     const userUid = useOutletContext().userUid;
@@ -102,14 +94,10 @@ const DocumentsPage = () => {
                     </Center>
                     <Box>
                         <List>
-                            {isLoading ? (
-                                <Spinner />
-                            ) : (
-                                <DocumentList
-                                    workerDocList={role === "worker" ? workerDocList : adminDocList}
-                                    type="waiting"
-                                />
-                            )}
+                            <DocumentList
+                                workerDocList={role === "worker" ? workerDocList : adminDocList}
+                                type="waiting"
+                            />
                         </List>
                     </Box>
                 </GridItem>
@@ -121,14 +109,10 @@ const DocumentsPage = () => {
                     </Center>
                     <Box>
                         <List>
-                            {isLoading ? (
-                                <Spinner />
-                            ) : (
-                                <DocumentList
-                                    workerDocList={role === "worker" ? workerDocList : adminDocList}
-                                    type="success"
-                                />
-                            )}
+                            <DocumentList
+                                workerDocList={role === "worker" ? workerDocList : adminDocList}
+                                type="success"
+                            />
                         </List>
                     </Box>
                 </GridItem>
@@ -181,6 +165,7 @@ const DocModal = memo(({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
     const userName = userInfo?.name;
     const company = userInfo?.company;
     const userUid = useOutletContext().userUid;
+
     const onSubmitHandler = (e: React.FormEvent<HTMLElement>) => {
         e.preventDefault();
         if (startDate === null || endDate === null) {
