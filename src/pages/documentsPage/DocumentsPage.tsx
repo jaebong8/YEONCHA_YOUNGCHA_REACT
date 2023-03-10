@@ -51,40 +51,14 @@ import { useFirestoreQueryData } from "@react-query-firebase/firestore";
 const DocumentsPage = () => {
     const docModal = useDisclosure();
     const userInfo: UserType = useOutletContext().userInfo;
-    const company = userInfo?.company;
     const role = userInfo?.role;
-    const userUid = useOutletContext().userUid;
-    const userName = userInfo?.name;
-
-    const docInfo = useDocDataQuery(company, userUid)?.data;
-
-    const adminDocRef = collection(db, company);
-    const adminDocInfo = useFirestoreQueryData([company], adminDocRef, { subscribe: true })?.data;
-
-    const workerDocList = useMemo(() => {
-        const documentList = Object?.values({ ...docInfo });
-        documentList.sort((a, b) => a?.createdAt?.toDate() - b?.createdAt?.toDate());
-        return documentList;
-    }, [docInfo]);
-
-    const adminDocList = useMemo(() => {
-        if (adminDocInfo !== undefined) {
-            const mergeObj = adminDocInfo?.[0];
-            for (let i = 1; i < adminDocInfo.length; i++) {
-                Object.assign(mergeObj, adminDocInfo?.[i]);
-            }
-
-            const adminArray: any[] = Object.values({ ...mergeObj });
-            adminArray.sort((a, b) => a?.createdAt?.toDate() - b?.createdAt?.toDate());
-            return adminArray;
-        }
-    }, [adminDocInfo]);
-
     return (
         <>
-            <Button onClick={docModal.onOpen} p="6" bg="blue.600" color="#fff">
-                신청서 작성하기
-            </Button>
+            {role === "worker" && (
+                <Button onClick={docModal.onOpen} p="6" bg="blue.600" color="#fff">
+                    신청서 작성하기
+                </Button>
+            )}
             <Grid templateRows={"1fr 0.5fr"} templateColumns="repeat(2, 1fr)" p="1" h="100%" gap="1">
                 <GridItem bg="#FEFEFE" overflow="auto" p="2">
                     <Center>
@@ -94,10 +68,7 @@ const DocumentsPage = () => {
                     </Center>
                     <Box>
                         <List>
-                            <DocumentList
-                                workerDocList={role === "worker" ? workerDocList : adminDocList}
-                                type="waiting"
-                            />
+                            <DocumentList type="waiting" />
                         </List>
                     </Box>
                 </GridItem>
@@ -109,10 +80,7 @@ const DocumentsPage = () => {
                     </Center>
                     <Box>
                         <List>
-                            <DocumentList
-                                workerDocList={role === "worker" ? workerDocList : adminDocList}
-                                type="success"
-                            />
+                            <DocumentList type="success" />
                         </List>
                     </Box>
                 </GridItem>
@@ -126,8 +94,36 @@ const DocumentsPage = () => {
 };
 
 export default DocumentsPage;
+// { workerDocList, type }: { workerDocList: DocType[] | undefined; type: string }
+const DocumentList = ({ type }: { type: string }): JSX.Element => {
+    const userInfo: UserType = useOutletContext().userInfo;
+    const company = userInfo?.company;
+    const role = userInfo?.role;
+    const userUid = useOutletContext().userUid;
 
-const DocumentList = ({ workerDocList, type }: { workerDocList: DocType[] | undefined; type: string }): JSX.Element => {
+    const docInfo = useDocDataQuery(company, userUid)?.data;
+
+    const adminDocRef = collection(db, company);
+    const adminDocInfo = useFirestoreQueryData([company], adminDocRef, { subscribe: true })?.data;
+
+    const workerDocList = useMemo(() => {
+        if (role === "worker") {
+            const documentList = Object?.values({ ...docInfo });
+            documentList.sort((a, b) => a?.createdAt?.toDate() - b?.createdAt?.toDate());
+            return documentList;
+        }
+        if (role === "admin" && adminDocInfo !== undefined) {
+            const mergeObj = adminDocInfo?.[0];
+            for (let i = 1; i < adminDocInfo.length; i++) {
+                Object.assign(mergeObj, adminDocInfo?.[i]);
+            }
+
+            const adminArray: any[] = Object.values({ ...mergeObj });
+            adminArray.sort((a, b) => a?.createdAt?.toDate() - b?.createdAt?.toDate());
+            return adminArray;
+        }
+    }, [docInfo, adminDocInfo, role]);
+
     return (
         <>
             {workerDocList?.map((doc) => {
