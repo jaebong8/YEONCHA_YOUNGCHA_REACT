@@ -21,7 +21,6 @@ export interface UserType {
     workStartDate?: string;
     workerUid?: string ;
     userUid: string;
-    documents: DocType
 
 }
 

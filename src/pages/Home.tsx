@@ -1,9 +1,6 @@
 import Calendar from "components/calendar/Calendar";
 import { auth, db } from "firebaseConfig/firebase";
 import withAuth from "components/hoc/withAuth";
-import { collection, query, where } from "firebase/firestore";
-import { useFirestoreQuery, useFirestoreQueryData } from "@react-query-firebase/firestore";
-import Layout from "layouts/Layout";
 import { Outlet } from "react-router-dom";
 import useDocDataQuery from "hooks/useDocDataQuery";
 import Spinner from "components/spinner/Spinner";
@@ -12,12 +9,17 @@ import styles from "./Home.module.scss";
 import { Img } from "@chakra-ui/react";
 import longIconPath from "assets/images/longIcon.png";
 import { NavLink } from "react-router-dom";
-
+import { useFirestoreDocumentData } from "@react-query-firebase/firestore";
 import { useAuthSignOut } from "@react-query-firebase/auth";
+import { collection, doc } from "firebase/firestore";
+import { format } from "date-fns";
+import { timeUid } from "utils/common";
 const Home = () => {
     const userUid = auth?.currentUser?.uid ?? "temp";
-
-    const userInfo = useDocDataQuery("users", userUid)?.data ?? {
+    const ref = doc(db, "users", userUid);
+    const userInfo = useFirestoreDocumentData(["user", userUid], ref, {
+        subscribe: true,
+    }).data ?? {
         email: "temp",
         role: "temp",
         company: "temp",
@@ -26,12 +28,10 @@ const Home = () => {
         documents: {},
     };
 
-    const isLoading = useDocDataQuery("users", userUid).isLoading;
     const mutationLogOut = useAuthSignOut(auth);
     let activeStyle = {
         backgroundColor: "#BEE3F8",
     };
-    // console.log(userInfo);
     return (
         <>
             <div className={styles.container}>
@@ -92,7 +92,7 @@ const Home = () => {
                         </Menu>
                     </div>
                 </nav>
-                <Outlet context={{ userInfo, userUid, isLoading }} />
+                <Outlet context={{ userInfo, userUid }} />
             </div>
         </>
     );
