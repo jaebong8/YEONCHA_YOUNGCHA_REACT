@@ -34,6 +34,7 @@ import { format } from "date-fns";
 import {
     arrayUnion,
     collection,
+    deleteField,
     doc,
     getDoc,
     query,
@@ -150,7 +151,6 @@ const DocumentList = ({ type }: { type: string }): JSX.Element => {
         },
         [detailModal]
     );
-
     return (
         <>
             {workerDocList?.map((doc) => {
@@ -432,6 +432,31 @@ const DetailModal = ({
         [clickedData, company, rejectModal, rejectReason, toast, detailModal]
     );
 
+    const deleteDocHandler = useCallback(async () => {
+        try {
+            if (clickedData !== null) {
+                await updateDoc(doc(db, company, clickedData?.userUid), {
+                    [clickedData?.documentUid]: deleteField(),
+                });
+                detailModal.onClose();
+                toast({
+                    title: `문서 삭제를 성공하였습니다.`,
+                    status: "success",
+                    duration: 5000,
+                    isClosable: true,
+                });
+            }
+        } catch (error) {
+            console.log(error);
+            toast({
+                title: `문서 삭제를 실패하였습니다.`,
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+            });
+        }
+    }, [clickedData, company, detailModal, toast]);
+
     return (
         <>
             <Modal isOpen={detailModal.isOpen} onClose={detailModal.onClose}>
@@ -506,7 +531,9 @@ const DetailModal = ({
                         )}
                         {((clickedData?.status === "success" && role === "admin") ||
                             (clickedData?.status === "waiting" && role === "worker")) && (
-                            <Button colorScheme="pink">삭제</Button>
+                            <Button colorScheme="pink" onClick={deleteDocHandler}>
+                                삭제
+                            </Button>
                         )}
                     </ModalFooter>
                 </ModalContent>
