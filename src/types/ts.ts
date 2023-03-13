@@ -35,4 +35,5 @@ export interface DocType {
     type:string;
     userUid:string;
     date:string;
+    reject?: string;
 }

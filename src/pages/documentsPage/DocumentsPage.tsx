@@ -25,6 +25,10 @@ import {
     useToast,
     Spinner,
     Skeleton,
+    Heading,
+    Text,
+    StackDivider,
+    VStack,
 } from "@chakra-ui/react";
 import { format } from "date-fns";
 import {
@@ -36,6 +40,7 @@ import {
     serverTimestamp,
     setDoc,
     Timestamp,
+    updateDoc,
     where,
 } from "firebase/firestore";
 import { auth, db } from "firebaseConfig/firebase";
@@ -84,11 +89,20 @@ const DocumentsPage = () => {
                         </List>
                     </Box>
                 </GridItem>
-                <GridItem colSpan={2} bg="#FEFEFE" overflow="auto">
-                    반려함
+                <GridItem colSpan={2} bg="#FEFEFE" overflow="auto" p="2">
+                    <Center>
+                        <Badge colorScheme="red" fontSize="0.6rem">
+                            반려함
+                        </Badge>
+                    </Center>
+                    <Box>
+                        <List>
+                            <DocumentList type="reject" />
+                        </List>
+                    </Box>
                 </GridItem>
             </Grid>
-            <DocModal isOpen={docModal.isOpen} onClose={docModal.onClose} />
+            <CreateDocModal isOpen={docModal.isOpen} onClose={docModal.onClose} />
         </>
     );
 };
@@ -100,11 +114,13 @@ const DocumentList = ({ type }: { type: string }): JSX.Element => {
     const company = userInfo?.company;
     const role = userInfo?.role;
     const userUid = useOutletContext().userUid;
-
+    const detailModal = useDisclosure();
     const docInfo = useDocDataQuery(company, userUid)?.data;
 
     const adminDocRef = collection(db, company);
     const adminDocInfo = useFirestoreQueryData([company], adminDocRef, { subscribe: true })?.data;
+
+    const [clickedData, setClickedData] = useState<DocType | null>(null);
 
     const workerDocList = useMemo(() => {
         if (role === "worker") {
@@ -124,32 +140,73 @@ const DocumentList = ({ type }: { type: string }): JSX.Element => {
         }
     }, [docInfo, adminDocInfo, role]);
 
+    const onClickHandler = useCallback(
+        (doc: DocType): any => {
+            setClickedData(() => {
+                const newData = { ...doc };
+                return newData;
+            });
+            detailModal.onOpen();
+        },
+        [detailModal]
+    );
+
     return (
         <>
             {workerDocList?.map((doc) => {
                 if (doc?.status === type && doc.createdAt !== null) {
                     const date = format(doc?.createdAt?.toDate(), "yyyy/MM/dd HH:mm");
                     return (
-                        <ListItem borderBottom="1px solid #efefef" key={doc.documentUid}>
-                            <Flex justifyContent="space-between" alignItems="center" p="8px 0">
-                                <Badge fontSize="1rem" whiteSpace="pre-wrap">
-                                    {doc?.title}
-                                </Badge>
+                        <ListItem
+                            borderBottom="1px solid #efefef"
+                            key={doc.documentUid}
+                            onClick={() => {
+                                onClickHandler(doc);
+                            }}
+                            cursor="pointer"
+                            _hover={{ backgroundColor: "#f7f7f7" }}
+                        >
+                            {doc?.status === "reject" ? (
+                                <>
+                                    <Flex alignItems="center" p="8px 0">
+                                        <Flex flexBasis="50%" justifyContent="space-between" alignItems="center">
+                                            <Badge fontSize="1rem" whiteSpace="pre-wrap">
+                                                {doc?.title}
+                                            </Badge>
 
-                                <Flex gap="2" alignItems="center">
-                                    <Badge bg="green.50">{doc?.name}</Badge>
-                                    <Badge bg="blue.50">{date}</Badge>
+                                            <Flex gap="2" alignItems="center" pr="4" borderRight="1px solid #eee">
+                                                <Badge bg="green.50">{doc?.name}</Badge>
+                                                <Badge bg="blue.50">{date}</Badge>
+                                            </Flex>
+                                        </Flex>
+
+                                        <Flex flexBasis="50%" alignItems="center" pl="4">
+                                            <Badge bg="red.50">반려 사유 : {doc?.reject}</Badge>
+                                        </Flex>
+                                    </Flex>
+                                </>
+                            ) : (
+                                <Flex justifyContent="space-between" alignItems="center" p="8px 0">
+                                    <Badge fontSize="1rem" whiteSpace="pre-wrap">
+                                        {doc?.title}
+                                    </Badge>
+
+                                    <Flex gap="2" alignItems="center">
+                                        <Badge bg="green.50">{doc?.name}</Badge>
+                                        <Badge bg="blue.50">{date}</Badge>
+                                    </Flex>
                                 </Flex>
-                            </Flex>
+                            )}
                         </ListItem>
                     );
                 }
             })}
+            <DetailModal detailModal={detailModal} clickedData={clickedData} company={company} role={role} />
         </>
     );
 };
 
-const DocModal = memo(({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
+const CreateDocModal = memo(({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
     const [title, setTitle, changeTitle] = useInput("");
     const [type, setType, changeType] = useInput("");
     const initialRef = useRef(null);
@@ -284,3 +341,206 @@ const DocModal = memo(({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
         </Modal>
     );
 });
+
+const DetailModal = ({
+    detailModal,
+    clickedData,
+    company,
+    role,
+}: {
+    detailModal: {
+        isOpen: boolean;
+        onOpen: () => void;
+        onClose: () => void;
+        onToggle: () => void;
+        isControlled: boolean;
+        getButtonProps: (props?: any) => any;
+        getDisclosureProps: (props?: any) => any;
+    };
+    clickedData: DocType | null;
+    company: string;
+    role: string;
+}) => {
+    const toast = useToast();
+    const initialRef = useRef(null);
+    const rejectModal = useDisclosure();
+    const [rejectReason, setRejectReason, changeRejectReason] = useInput("");
+    const successBtnHandler = useCallback(async () => {
+        console.log(clickedData);
+        try {
+            if (clickedData !== null) {
+                await updateDoc(doc(db, company, clickedData?.userUid), {
+                    [clickedData?.documentUid]: {
+                        createdAt: clickedData?.createdAt,
+                        documentUid: clickedData?.documentUid,
+                        endDate: clickedData?.endDate,
+                        name: clickedData?.name,
+                        startDate: clickedData?.startDate,
+                        status: "success",
+                        title: clickedData?.title,
+                        type: clickedData?.type,
+                        userUid: clickedData?.userUid,
+                        date: clickedData?.date,
+                    },
+                });
+                toast({
+                    title: `결재를 완료하였습니다.`,
+                    status: "success",
+                    duration: 5000,
+                    isClosable: true,
+                });
+                detailModal.onClose();
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }, [clickedData, toast, company, detailModal]);
+
+    const rejectSubmitHandler = useCallback(
+        async (e: React.FormEvent<HTMLElement>) => {
+            e.preventDefault();
+            try {
+                if (clickedData !== null) {
+                    await updateDoc(doc(db, company, clickedData?.userUid), {
+                        [clickedData?.documentUid]: {
+                            createdAt: clickedData?.createdAt,
+                            documentUid: clickedData?.documentUid,
+                            endDate: clickedData?.endDate,
+                            name: clickedData?.name,
+                            startDate: clickedData?.startDate,
+                            status: "reject",
+                            title: clickedData?.title,
+                            type: clickedData?.type,
+                            userUid: clickedData?.userUid,
+                            date: clickedData?.date,
+                            reject: rejectReason,
+                        },
+                    });
+                    toast({
+                        title: `결재를 완료하였습니다.`,
+                        status: "success",
+                        duration: 5000,
+                        isClosable: true,
+                    });
+                    rejectModal.onClose();
+                    detailModal.onClose();
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        },
+        [clickedData, company, rejectModal, rejectReason, toast, detailModal]
+    );
+
+    return (
+        <>
+            <Modal isOpen={detailModal.isOpen} onClose={detailModal.onClose}>
+                <ModalOverlay />
+                <ModalContent>
+                    <ModalHeader>신청서</ModalHeader>
+                    <ModalCloseButton />
+                    <ModalBody>
+                        <VStack divider={<StackDivider bg="gray.200" h="1px" />} spacing="2" align="stretch">
+                            <Box>
+                                <Heading size="xs" textTransform="uppercase" color="gray.500">
+                                    제목
+                                </Heading>
+                                <Text pt="2" fontSize="md">
+                                    {clickedData?.title}
+                                </Text>
+                            </Box>
+                            <Box>
+                                <Heading size="xs" textTransform="uppercase" color="gray.500">
+                                    신청자
+                                </Heading>
+                                <Text pt="2" fontSize="md">
+                                    {clickedData?.name}
+                                </Text>
+                            </Box>
+                            <Box>
+                                <Heading size="xs" textTransform="uppercase" color="gray.500">
+                                    종류
+                                </Heading>
+                                <Text pt="2" fontSize="md">
+                                    {clickedData?.type === "full" ? "연차" : "반차"}
+                                </Text>
+                            </Box>
+                            <Box>
+                                <Heading size="xs" textTransform="uppercase" color="gray.500">
+                                    신청 날짜
+                                </Heading>
+                                <Text pt="2" fontSize="md">
+                                    {`${clickedData?.startDate} ~ ${clickedData?.endDate}`}
+                                </Text>
+                            </Box>
+                            {clickedData?.reject && (
+                                <Box>
+                                    <Heading size="xs" textTransform="uppercase" color="gray.500">
+                                        반려 사유
+                                    </Heading>
+                                    <Text pt="2" fontSize="md">
+                                        {clickedData?.reject}
+                                    </Text>
+                                </Box>
+                            )}
+                        </VStack>
+                    </ModalBody>
+
+                    <ModalFooter>
+                        {clickedData?.status === "waiting" && role === "admin" && (
+                            <>
+                                <Button
+                                    colorScheme="pink"
+                                    mr={3}
+                                    onClick={() => {
+                                        rejectModal.onOpen();
+                                    }}
+                                >
+                                    반려
+                                </Button>
+
+                                <Button colorScheme="blue" onClick={successBtnHandler}>
+                                    승인
+                                </Button>
+                            </>
+                        )}
+                        {((clickedData?.status === "success" && role === "admin") ||
+                            (clickedData?.status === "waiting" && role === "worker")) && (
+                            <Button colorScheme="pink">삭제</Button>
+                        )}
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
+
+            <Modal isOpen={rejectModal.isOpen} onClose={rejectModal.onClose}>
+                <ModalOverlay />
+                <ModalContent>
+                    <ModalHeader>반려</ModalHeader>
+                    <ModalCloseButton />
+                    <Box as="form" onSubmit={rejectSubmitHandler}>
+                        <ModalBody>
+                            <FormControl isRequired>
+                                <FormLabel>사유</FormLabel>
+                                <Input
+                                    type="text"
+                                    placeholder="사유를 입력해주세요."
+                                    variant="flushed"
+                                    _placeholder={{ fontSize: "0.9rem" }}
+                                    ref={initialRef}
+                                    value={rejectReason}
+                                    onChange={changeRejectReason}
+                                />
+                            </FormControl>
+                        </ModalBody>
+
+                        <ModalFooter>
+                            <Button colorScheme="pink" mr={3} type="submit">
+                                반려
+                            </Button>
+                        </ModalFooter>
+                    </Box>
+                </ModalContent>
+            </Modal>
+        </>
+    );
+};
