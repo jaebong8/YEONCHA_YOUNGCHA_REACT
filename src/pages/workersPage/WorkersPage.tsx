@@ -8,124 +8,8 @@ import { differenceInYears } from "date-fns";
 import { WorkerType } from "types/ts";
 import { useFirestoreDocumentData } from "@react-query-firebase/firestore";
 import { timeUid } from "utils/common";
-import { Spinner } from "@chakra-ui/react";
-const Workers = () => {
-    // const workersInfo: WorkerType[] | undefined = userInfo.data && Object.values(userInfo?.data?.workers);
-
-    // const onSubmitHandler = useCallback(
-    //     (e: React.FormEvent<HTMLElement>) => {
-    //         e.preventDefault();
-    //         const saveUser = async () => {
-    //             let uuid = crypto.randomUUID();
-    //             try {
-    //                 if (birthDate !== null && workStartDate !== null) {
-    //                     await setDoc(
-    //                         doc(db, "users", userUid),
-    //                         {
-    //                             workers: {
-    //                                 [uuid]: {
-    //                                     name,
-    //                                     phoneNumber,
-    //                                     birthDate: format(birthDate, "yyyy/MM/dd"),
-    //                                     workStartDate: format(workStartDate, "yyyy/MM/dd"),
-    //                                     role: "worker",
-    //                                     workerUid: uuid,
-    //                                 },
-    //                             },
-    //                         },
-    //                         { merge: true }
-    //                     );
-    //                     toast({
-    //                         title: `직원등록을 성공하였습니다.`,
-    //                         status: "success",
-    //                         duration: 5000,
-    //                         isClosable: true,
-    //                     });
-    //                 }
-    //             } catch (error) {
-    //                 console.log(error);
-    //                 toast({
-    //                     title: "직원등록을 실패하였습니다.",
-    //                     status: "error",
-    //                     duration: 5000,
-    //                     isClosable: true,
-    //                 });
-    //             }
-    //         };
-    //         saveUser();
-    //         setName("");
-    //         setPhoneNumber("");
-    //         setBirthDate(null);
-    //         setWorkStartDate(null);
-    //     },
-    //     [name, birthDate, workStartDate, phoneNumber, userUid, toast]
-    // );
-
-    // const deleteHandler = (worker: WorkerType) => {
-    //     const keyName = `workers.${clickedWorker.workerUid}`;
-    //     const deleteUser = async () => {
-    //         try {
-    //             await updateDoc(doc(db, "users", userUid), {
-    //                 [keyName]: deleteField(),
-    //             });
-    //             editModal.onClose();
-    //             toast({
-    //                 title: `직원 삭제를 성공하였습니다.`,
-    //                 status: "success",
-    //                 duration: 5000,
-    //                 isClosable: true,
-    //             });
-    //         } catch (error) {
-    //             console.log(error);
-    //             toast({
-    //                 title: `직원 삭제를 실패하였습니다.`,
-    //                 status: "error",
-    //                 duration: 5000,
-    //                 isClosable: true,
-    //             });
-    //         }
-    //     };
-    //     deleteUser();
-    // };
-
-    // const editSubmitHandler = useCallback(
-    //     async (e: React.FormEvent<HTMLElement>) => {
-    //         e.preventDefault();
-    //         const keyName = `workers.${clickedWorker.workerUid}`;
-    //         try {
-    //             await updateDoc(doc(db, "users", userUid), {
-    //                 [keyName]: {
-    //                     name: clickedWorker.name,
-    //                     phoneNumber: clickedWorker.phoneNumber,
-    //                     birthDate: clickedWorker.birthDate,
-    //                     workStartDate: clickedWorker.workStartDate,
-    //                     role: "worker",
-    //                     workerUid: clickedWorker.workerUid,
-    //                 },
-    //             });
-    //             toast({
-    //                 title: `직원 수정을 성공하였습니다.`,
-    //                 status: "success",
-    //                 duration: 5000,
-    //                 isClosable: true,
-    //             });
-    //             editModal.onClose();
-    //         } catch (error) {
-    //             console.log(error);
-    //         }
-    //     },
-    //     [
-    //         clickedWorker.name,
-    //         clickedWorker.phoneNumber,
-    //         clickedWorker.birthDate,
-    //         clickedWorker.workStartDate,
-    //         clickedWorker.workerUid,
-    //         editModal,
-    //         userUid,
-    //         toast,
-    //     ]
-    // );
-
+import { useFirestoreQueryData } from "@react-query-firebase/firestore";
+const WorkersPage = () => {
     return (
         <>
             <section className={styles.section}>
@@ -151,7 +35,7 @@ const Workers = () => {
     );
 };
 
-export default withAuth(Workers);
+export default withAuth(WorkersPage);
 
 const WorkersComponent = () => {
     const userUid = auth?.currentUser?.uid ?? "temp";
@@ -162,11 +46,15 @@ const WorkersComponent = () => {
     const workersInfo: WorkerType[] = useMemo(() => {
         return Object?.values({ ...userInfo?.data?.workers });
     }, [userInfo]);
+    // const company = userInfo?.data?.company ?? "empty";
+    // const adminDocRef = collection(db, company);
+    // const adminDocInfo = useFirestoreQueryData([company], adminDocRef, { subscribe: true })?.data;
 
     return (
         <>
             {workersInfo?.map((worker: WorkerType) => {
                 const workYear = differenceInYears(new Date(), new Date(worker.workStartDate));
+
                 return (
                     <tr key={`${worker.workerUid}`}>
                         <td>

@@ -18,10 +18,11 @@ import {
     StackDivider,
     VStack,
 } from "@chakra-ui/react";
-import { deleteField, doc, updateDoc } from "firebase/firestore";
+import { differenceInCalendarDays, format } from "date-fns";
+import { deleteField, doc, increment, updateDoc } from "firebase/firestore";
 import { db } from "firebaseConfig/firebase";
 import useInput from "hooks/useInput";
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, useMemo } from "react";
 import { DocType } from "types/ts";
 
 const DocDetailModal = ({
@@ -47,10 +48,18 @@ const DocDetailModal = ({
     const initialRef = useRef(null);
     const rejectModal = useDisclosure();
     const [rejectReason, setRejectReason, changeRejectReason] = useInput("");
+    const anuual = useMemo(() => {
+        if (clickedData !== null) {
+            return differenceInCalendarDays(new Date(clickedData?.endDate), new Date(clickedData?.startDate)) + 1;
+        }
+    }, [clickedData]);
     const successBtnHandler = useCallback(async () => {
-        console.log(clickedData);
         try {
             if (clickedData !== null) {
+                const userRef = doc(db, "users", clickedData?.userUid);
+                const year = format(new Date(clickedData?.date), "yyyy");
+                const annual =
+                    differenceInCalendarDays(new Date(clickedData?.endDate), new Date(clickedData?.startDate)) + 1;
                 await updateDoc(doc(db, company, clickedData?.userUid), {
                     [clickedData?.documentUid]: {
                         createdAt: clickedData?.createdAt,
@@ -64,6 +73,9 @@ const DocDetailModal = ({
                         userUid: clickedData?.userUid,
                         date: clickedData?.date,
                     },
+                });
+                await updateDoc(userRef, {
+                    [year]: increment(annual),
                 });
                 toast({
                     title: `결재를 완료하였습니다.`,
@@ -83,6 +95,12 @@ const DocDetailModal = ({
             e.preventDefault();
             try {
                 if (clickedData !== null) {
+                    const userRef = doc(db, "users", clickedData?.userUid);
+                    const year = format(new Date(clickedData?.date), "yyyy");
+                    const annual =
+                        (differenceInCalendarDays(new Date(clickedData?.endDate), new Date(clickedData?.startDate)) +
+                            1) *
+                        -1;
                     await updateDoc(doc(db, company, clickedData?.userUid), {
                         [clickedData?.documentUid]: {
                             createdAt: clickedData?.createdAt,
@@ -97,6 +115,9 @@ const DocDetailModal = ({
                             date: clickedData?.date,
                             reject: rejectReason,
                         },
+                    });
+                    await updateDoc(userRef, {
+                        [year]: increment(annual),
                     });
                     toast({
                         title: `결재를 완료하였습니다.`,
@@ -177,7 +198,7 @@ const DocDetailModal = ({
                                     신청 날짜
                                 </Heading>
                                 <Text pt="2" fontSize="md">
-                                    {`${clickedData?.startDate} ~ ${clickedData?.endDate}`}
+                                    {`${clickedData?.startDate} ~ ${clickedData?.endDate} (${anuual}일)`}
                                 </Text>
                             </Box>
                             {clickedData?.reject && (
@@ -211,8 +232,18 @@ const DocDetailModal = ({
                                 </Button>
                             </>
                         )}
-                        {((clickedData?.status === "success" && role === "admin") ||
-                            (clickedData?.status === "waiting" && role === "worker")) && (
+                        {clickedData?.status === "success" && role === "admin" && (
+                            <Button
+                                colorScheme="pink"
+                                mr={3}
+                                onClick={() => {
+                                    rejectModal.onOpen();
+                                }}
+                            >
+                                반려
+                            </Button>
+                        )}
+                        {clickedData?.status === "waiting" && role === "worker" && (
                             <Button colorScheme="pink" onClick={deleteDocHandler}>
                                 삭제
                             </Button>
