@@ -43,6 +43,7 @@ const Worker = () => {
     const mutation = useAuthCreateUserWithEmailAndPassword(auth, {
         onSuccess(user) {
             const uid = user.user.uid;
+            const year = format(new Date(), "yyyy");
             const saveUser = async () => {
                 await setDoc(doc(db, "users", uid), {
                     userUid: uid,
@@ -78,6 +79,8 @@ const Worker = () => {
                                 workStartDate: format(workStartDate, "yyyy/MM/dd"),
                                 role: "worker",
                                 workerUid: uid,
+                                adminUid,
+                                [year]: 0,
                             },
                         },
                     },

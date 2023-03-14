@@ -1,3 +1,4 @@
+
 import { Timestamp } from "firebase/firestore";
 
 export interface WorkerType {
@@ -8,6 +9,7 @@ export interface WorkerType {
     workStartDate: string;
     workerUid: string ;
     userUid?: string;
+    [key:string]: number | string | undefined;
 } 
 
 export interface UserType {
