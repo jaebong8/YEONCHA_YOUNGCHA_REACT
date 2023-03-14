@@ -19,11 +19,12 @@ import {
     VStack,
 } from "@chakra-ui/react";
 import { differenceInCalendarDays, format } from "date-fns";
-import { deleteField, doc, increment, updateDoc } from "firebase/firestore";
-import { db } from "firebaseConfig/firebase";
+import { collection, deleteField, doc, increment, query, updateDoc, where } from "firebase/firestore";
+import { auth, db } from "firebaseConfig/firebase";
 import useInput from "hooks/useInput";
 import { useRef, useCallback, useMemo } from "react";
 import { DocType } from "types/ts";
+import { useFirestoreQueryData } from "@react-query-firebase/firestore";
 
 const DocDetailModal = ({
     detailModal,
@@ -53,10 +54,16 @@ const DocDetailModal = ({
             return differenceInCalendarDays(new Date(clickedData?.endDate), new Date(clickedData?.startDate)) + 1;
         }
     }, [clickedData]);
+
+    // const ref = query(collection(db, "users"), where("company", "==", company), where("role", "==", "admin"));
+    // const adminUid = useFirestoreQueryData(["adminUid", clickedData?.userUid], ref);
+    // console.log(adminUid);
+
     const successBtnHandler = useCallback(async () => {
         try {
             if (clickedData !== null) {
-                const userRef = doc(db, "users", clickedData?.userUid);
+                const userUid = auth?.currentUser?.uid ?? "empty";
+                const userRef = doc(db, "users", userUid);
                 const year = format(new Date(clickedData?.date), "yyyy");
                 const annual =
                     differenceInCalendarDays(new Date(clickedData?.endDate), new Date(clickedData?.startDate)) + 1;
@@ -74,8 +81,9 @@ const DocDetailModal = ({
                         date: clickedData?.date,
                     },
                 });
+                const keyName = `workers.${clickedData?.userUid}.${year}`;
                 await updateDoc(userRef, {
-                    [year]: increment(annual),
+                    [keyName]: increment(annual),
                 });
                 toast({
                     title: `결재를 완료하였습니다.`,
@@ -95,12 +103,20 @@ const DocDetailModal = ({
             e.preventDefault();
             try {
                 if (clickedData !== null) {
-                    const userRef = doc(db, "users", clickedData?.userUid);
+                    const userUid = auth?.currentUser?.uid ?? "empty";
+                    const userRef = doc(db, "users", userUid);
                     const year = format(new Date(clickedData?.date), "yyyy");
                     const annual =
                         (differenceInCalendarDays(new Date(clickedData?.endDate), new Date(clickedData?.startDate)) +
                             1) *
                         -1;
+
+                    if (clickedData.status === "success") {
+                        const keyName = `workers.${clickedData?.userUid}.${year}`;
+                        await updateDoc(userRef, {
+                            [keyName]: increment(annual),
+                        });
+                    }
                     await updateDoc(doc(db, company, clickedData?.userUid), {
                         [clickedData?.documentUid]: {
                             createdAt: clickedData?.createdAt,
@@ -116,9 +132,7 @@ const DocDetailModal = ({
                             reject: rejectReason,
                         },
                     });
-                    await updateDoc(userRef, {
-                        [year]: increment(annual),
-                    });
+
                     toast({
                         title: `결재를 완료하였습니다.`,
                         status: "success",

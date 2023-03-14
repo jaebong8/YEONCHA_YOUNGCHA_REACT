@@ -54,7 +54,6 @@ const Worker = () => {
                     birthDate: format(birthDate, "yyyy/MM/dd"),
                     workStartDate: format(workStartDate, "yyyy/MM/dd"),
                     phoneNumber,
-                    [year]: 0,
                 });
             };
             const saveInAdmin = async () => {
@@ -80,6 +79,8 @@ const Worker = () => {
                                 workStartDate: format(workStartDate, "yyyy/MM/dd"),
                                 role: "worker",
                                 workerUid: uid,
+                                adminUid,
+                                [year]: 0,
                             },
                         },
                     },

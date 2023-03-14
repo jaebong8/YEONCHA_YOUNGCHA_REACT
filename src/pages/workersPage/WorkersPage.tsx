@@ -4,11 +4,11 @@ import { useMemo } from "react";
 
 import { collection, doc } from "firebase/firestore";
 import { auth, db } from "firebaseConfig/firebase";
-import { differenceInYears } from "date-fns";
+import { differenceInYears, format } from "date-fns";
 import { WorkerType } from "types/ts";
 import { useFirestoreDocumentData } from "@react-query-firebase/firestore";
 import { timeUid } from "utils/common";
-import { useFirestoreQueryData } from "@react-query-firebase/firestore";
+
 const WorkersPage = () => {
     return (
         <>
@@ -23,6 +23,7 @@ const WorkersPage = () => {
                                 <th>연락처</th>
                                 <th>입사일</th>
                                 <th>년차</th>
+                                <th>연차 사용 횟수</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -46,15 +47,11 @@ const WorkersComponent = () => {
     const workersInfo: WorkerType[] = useMemo(() => {
         return Object?.values({ ...userInfo?.data?.workers });
     }, [userInfo]);
-    // const company = userInfo?.data?.company ?? "empty";
-    // const adminDocRef = collection(db, company);
-    // const adminDocInfo = useFirestoreQueryData([company], adminDocRef, { subscribe: true })?.data;
-
     return (
         <>
             {workersInfo?.map((worker: WorkerType) => {
                 const workYear = differenceInYears(new Date(), new Date(worker.workStartDate));
-
+                const year = format(new Date(), "yyyy");
                 return (
                     <tr key={`${worker.workerUid}`}>
                         <td>
@@ -64,6 +61,7 @@ const WorkersComponent = () => {
                         <td>{worker.phoneNumber}</td>
                         <td>{worker.workStartDate}</td>
                         <td>{`${workYear + 1}년차`}</td>
+                        <td>{worker[year]}</td>
                     </tr>
                 );
             })}
