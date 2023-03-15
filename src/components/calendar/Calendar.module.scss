@@ -59,12 +59,12 @@
     .dateContainer {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
-        gap: 5px;
         margin-top: 10px;
         > div {
             border: 1px solid v.$subColor;
             height: 100px;
             color: v.$subColor2;
+            position: relative;
             .topLine {
                 display: flex;
                 gap: 5px;
