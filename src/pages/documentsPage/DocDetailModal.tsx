@@ -19,12 +19,11 @@ import {
     VStack,
 } from "@chakra-ui/react";
 import { differenceInCalendarDays, format } from "date-fns";
-import { collection, deleteField, doc, increment, query, updateDoc, where } from "firebase/firestore";
+import { deleteField, doc, increment, updateDoc } from "firebase/firestore";
 import { auth, db } from "firebaseConfig/firebase";
 import useInput from "hooks/useInput";
 import { useRef, useCallback, useMemo } from "react";
 import { DocType } from "types/ts";
-import { useFirestoreQueryData } from "@react-query-firebase/firestore";
 
 const DocDetailModal = ({
     detailModal,
@@ -48,7 +47,7 @@ const DocDetailModal = ({
     const toast = useToast();
     const initialRef = useRef(null);
     const rejectModal = useDisclosure();
-    const [rejectReason, setRejectReason, changeRejectReason] = useInput("");
+    const [rejectReason, , changeRejectReason] = useInput("");
     const anuual = useMemo(() => {
         if (clickedData !== null) {
             return differenceInCalendarDays(new Date(clickedData?.endDate), new Date(clickedData?.startDate)) + 1;

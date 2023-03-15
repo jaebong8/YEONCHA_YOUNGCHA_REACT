@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState } from "react";
 import {
     FormControl,
     FormLabel,
@@ -16,7 +16,7 @@ import { auth, db } from "firebaseConfig/firebase";
 import { useToast } from "@chakra-ui/react";
 import LoginLink from "components/loginLink/LoginLink";
 import SignBtn from "components/SignBtn";
-import { collection, doc, getDoc, getDocs, query, setDoc, where } from "firebase/firestore";
+import { collection, doc, getDocs, query, setDoc, where } from "firebase/firestore";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import useDocDataQuery from "hooks/useDocDataQuery";
 import DatePicker from "react-datepicker";
@@ -29,8 +29,8 @@ const Worker = () => {
     const [password, setPassword, changePassword] = useInput("");
     const [passwordCheck, setPasswordCheck, changePasswordCheck] = useInput("");
     const [companyName, setCompanyName, changeCompanyName] = useInput("");
-    const [birthDate, setBirthDate, changeBirthDate] = useInput(null);
-    const [workStartDate, setWorkStartDate, changeWorkStartDate] = useInput(null);
+    const [birthDate, setBirthDate] = useInput(null);
+    const [workStartDate, setWorkStartDate] = useInput(null);
     const [name, setName, changeName] = useInput("");
     const [phoneNumber, setPhoneNumber, changePhoneNumber] = useInput("");
     const [show, setShow] = useState(false);
