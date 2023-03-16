@@ -1,6 +1,6 @@
 import styles from "./Calendar.module.scss";
 import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
     format,
     addMonths,
@@ -21,7 +21,7 @@ import { collection } from "firebase/firestore";
 import { useFirestoreQueryData } from "@react-query-firebase/firestore";
 import { db } from "firebaseConfig/firebase";
 import { timeUid } from "utils/common";
-import { Box } from "@chakra-ui/react";
+import { Box, Tooltip } from "@chakra-ui/react";
 
 const Calendar = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
@@ -31,9 +31,9 @@ const Calendar = () => {
     const endDate = endOfWeek(monthEnd);
     const weekMock = ["일", "월", "화", "수", "목", "금", "토"];
     const userInfo: UserType = useOutletContext().userInfo;
-    const userUid = useOutletContext().userUid;
     const company = userInfo?.company;
-
+    const dateContainerRef = useRef<any>();
+    const boxRef = useRef<any>({});
     const adminDocRef = collection(db, company);
     const docsQuery = useFirestoreQueryData([company, timeUid()], adminDocRef, { subscribe: true })?.data;
 
@@ -46,7 +46,6 @@ const Calendar = () => {
 
             const adminArray: any[] = Object.values({ ...mergeObj });
             const filterArray = adminArray.filter((v) => v.status === "success");
-            console.log(filterArray);
             return filterArray;
         }
     }, [docsQuery]);
@@ -67,6 +66,37 @@ const Calendar = () => {
 
         return monthArray;
     }, [startDate, endDate]);
+
+    useEffect(() => {
+        const heightArray: number[] = [];
+        Object.values(boxRef.current).forEach((v: any, i) => {
+            if (v?.childElementCount === 0) return;
+            if (v) {
+                let parentWidth = getComputedStyle(v.parentNode).width;
+                let overWidth = 0;
+                if (v.parentNode.previousElementSibling.childNodes[1].childNodes.length > 1) {
+                    console.log(v);
+                    overWidth = v.parentNode.previousElementSibling.childNodes[1].childNodes.length;
+                } else {
+                    v.parentNode.previousElementSibling.childNodes[1].childNodes.forEach((node: any) => {
+                        if (getComputedStyle(node).width > parentWidth) {
+                            overWidth++;
+                        }
+                    });
+                }
+
+                v.style.top = `${(overWidth + 1) * 22}px`;
+                heightArray.push(overWidth);
+            }
+        });
+        const maxHeight = Math.max(...heightArray);
+        Object.values(boxRef.current).forEach((v: any, i) => {
+            if (v) {
+                v.parentNode.style.height = `${maxHeight * 30}px`;
+            }
+        });
+    }, [createMonth, docsInfo, boxRef.current]);
+
     return (
         <section className={styles.calendar}>
             <div className={styles.yearTitle}>{format(currentDate, "yyyy년")}</div>
@@ -99,7 +129,7 @@ const Calendar = () => {
                     );
                 })}
             </div>
-            <div className={styles.dateContainer}>
+            <div className={styles.dateContainer} ref={dateContainerRef}>
                 {createMonth.map((v, i) => {
                     const date = format(v, "yyyy/MM/dd");
                     let style;
@@ -117,16 +147,20 @@ const Calendar = () => {
                     }
 
                     return (
-                        <div
-                            key={`date${i}`}
-                            className={validation ? styles.currentMonth : styles.diffMonth}
-                            style={style}
-                        >
+                        <div key={`date${i}`} className={validation ? styles.currentMonth : styles.diffMonth}>
                             <div className={styles.topLine}>
                                 <span className={styles.day}>{format(v, "d")}</span>
                                 {today && <span className={styles.today}>(오늘)</span>}
                             </div>
-                            <Box position="absolute" w="100%" zIndex="9999">
+                            <Box
+                                position="absolute"
+                                w="100%"
+                                zIndex="100"
+                                className="docBox"
+                                ref={(element) => {
+                                    return (boxRef.current[i] = element);
+                                }}
+                            >
                                 {docsInfo?.map((doc) => {
                                     if (
                                         differenceInCalendarDays(new Date(doc.startDate), v) <= 0 &&
@@ -201,15 +235,30 @@ export default Calendar;
 const AnnualBox = ({ width, doc }: { width: number; doc: any }) => {
     return (
         <Box
+            className={styles.doc}
             width={`${100 * width}%`}
-            bg="gray.500"
-            textAlign="center"
+            bg={`#${doc.color}`}
             color="#fff"
             fontWeight="bold"
             ml={`${width - 1}px`}
-            mt="1px"
+            mt="2px"
+            fontSize="0.8rem"
+            p="1px"
+            textShadow="0px 0px 2px #000"
+            position="relative"
+            _hover={{
+                boxShadow: "0 0 10px 0 $blue inset, 0 0 10px 4px $blue",
+                zIndex: "9999",
+            }}
         >
-            {doc.name}
+            <Tooltip
+                hasArrow
+                label={`${doc.type === "full" ? "연차" : "반차"} ${doc.startDate}~${doc.endDate}`}
+                bg="blue.600"
+                cursor="pointer"
+            >
+                <span className={styles.docName}>{doc.name}</span>
+            </Tooltip>
         </Box>
     );
 };

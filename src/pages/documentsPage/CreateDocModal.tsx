@@ -68,6 +68,7 @@ const CreateDocModal = memo(({ isOpen, onClose }: { isOpen: boolean; onClose: ()
                                 type,
                                 name: userName,
                                 date,
+                                color: Math.random().toString(16).substr(-6),
                             },
                         },
                         { merge: true }

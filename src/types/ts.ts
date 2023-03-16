@@ -38,4 +38,5 @@ export interface DocType {
     userUid:string;
     date:string;
     reject?: string;
+    color:string;
 }

@@ -78,6 +78,7 @@ const DocDetailModal = ({
                         type: clickedData?.type,
                         userUid: clickedData?.userUid,
                         date: clickedData?.date,
+                        color: clickedData?.color,
                     },
                 });
                 const keyName = `workers.${clickedData?.userUid}.${year}`;
@@ -129,6 +130,7 @@ const DocDetailModal = ({
                             userUid: clickedData?.userUid,
                             date: clickedData?.date,
                             reject: rejectReason,
+                            color: clickedData?.color,
                         },
                     });
 
