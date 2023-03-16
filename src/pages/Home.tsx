@@ -1,9 +1,7 @@
-import Calendar from "components/calendar/Calendar";
 import { auth, db } from "firebaseConfig/firebase";
 import withAuth from "components/hoc/withAuth";
 import { Outlet } from "react-router-dom";
-import useDocDataQuery from "hooks/useDocDataQuery";
-import Spinner from "components/spinner/Spinner";
+
 import { Avatar, Menu, MenuButton, MenuDivider, MenuGroup, MenuItem, MenuList } from "@chakra-ui/react";
 import styles from "./Home.module.scss";
 import { Img } from "@chakra-ui/react";
@@ -11,9 +9,8 @@ import longIconPath from "assets/images/longIcon.png";
 import { NavLink } from "react-router-dom";
 import { useFirestoreDocumentData } from "@react-query-firebase/firestore";
 import { useAuthSignOut } from "@react-query-firebase/auth";
-import { collection, doc } from "firebase/firestore";
-import { format } from "date-fns";
-import { timeUid } from "utils/common";
+import { doc } from "firebase/firestore";
+
 const Home = () => {
     const userUid = auth?.currentUser?.uid ?? "temp";
     const ref = doc(db, "users", userUid);
@@ -27,6 +24,8 @@ const Home = () => {
         workers: {},
         documents: {},
     };
+    const email = auth?.currentUser?.email;
+    console.log(email);
 
     const mutationLogOut = useAuthSignOut(auth);
     let activeStyle = {
@@ -70,14 +69,9 @@ const Home = () => {
                             </MenuButton>
                             <MenuList>
                                 <MenuGroup title="Profile">
-                                    <MenuItem>My Account</MenuItem>
-                                    <MenuItem>Payments </MenuItem>
+                                    <MenuItem>{email}</MenuItem>
                                 </MenuGroup>
-                                <MenuDivider color="#DDD" />
-                                <MenuGroup title="Help">
-                                    <MenuItem>Docs</MenuItem>
-                                    <MenuItem>FAQ</MenuItem>
-                                </MenuGroup>
+
                                 <MenuDivider color="#DDD" />
                                 <MenuItem
                                     justifyContent={"center"}

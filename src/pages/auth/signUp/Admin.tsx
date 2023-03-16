@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import styles from "pages/auth/signIn/SignIn.module.scss";
+
 import { FormControl, FormLabel, Input, InputGroup, InputRightElement, Button, Box } from "@chakra-ui/react";
 import useInput from "hooks/useInput";
 import { useAuthCreateUserWithEmailAndPassword } from "@react-query-firebase/auth";

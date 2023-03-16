@@ -1,13 +1,11 @@
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import {
     FormControl,
     FormLabel,
-    FormErrorMessage,
     Input,
     InputGroup,
     InputRightElement,
     Button,
-    Container,
     Center,
     useToast,
     Box,
@@ -17,8 +15,8 @@ import LoginLink from "components/loginLink/LoginLink";
 import { Img } from "@chakra-ui/react";
 import logo from "assets/images/mainIcon.png";
 import SignBtn from "components/SignBtn";
-import { useAuthSignInWithEmailAndPassword, useAuthSignOut, useAuthIdToken } from "@react-query-firebase/auth";
-import { auth, db } from "firebaseConfig/firebase";
+import { useAuthSignInWithEmailAndPassword } from "@react-query-firebase/auth";
+import { auth } from "firebaseConfig/firebase";
 import withAuth from "components/hoc/withAuth";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 

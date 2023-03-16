@@ -75,7 +75,6 @@ const Calendar = () => {
                 let parentWidth = getComputedStyle(v.parentNode).width;
                 let overWidth = 0;
                 if (v.parentNode.previousElementSibling.childNodes[1].childNodes.length > 1) {
-                    console.log(v);
                     overWidth = v.parentNode.previousElementSibling.childNodes[1].childNodes.length;
                 } else {
                     v.parentNode.previousElementSibling.childNodes[1].childNodes.forEach((node: any) => {
