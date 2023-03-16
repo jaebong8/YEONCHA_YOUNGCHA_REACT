@@ -60,10 +60,11 @@
     .dateContainer {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
+
         margin-top: 10px;
         > div {
             border: 1px solid v.$subColor;
-            height: 100px;
+            min-height: 20vh;
             color: v.$subColor2;
             position: relative;
             .topLine {
@@ -82,5 +83,15 @@
         .diffMonth {
             color: #ddd;
         }
+    }
+}
+
+.doc {
+    &:hover {
+        box-shadow: 0 0 2px 0 #3498db inset, 0 0 2px 2px #3498db;
+    }
+
+    .docName {
+        cursor: pointer;
     }
 }
