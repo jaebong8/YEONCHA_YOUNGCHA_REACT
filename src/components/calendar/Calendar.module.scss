@@ -1,6 +1,7 @@
 @use "styles/variables.scss" as v;
 .calendar {
     padding: 10px;
+    padding-bottom: 30px;
     .yearTitle {
         text-align: center;
         font-size: 1.5rem;

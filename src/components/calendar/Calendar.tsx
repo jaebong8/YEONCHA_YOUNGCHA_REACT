@@ -21,7 +21,7 @@ import { collection } from "firebase/firestore";
 import { useFirestoreQueryData } from "@react-query-firebase/firestore";
 import { db } from "firebaseConfig/firebase";
 import { timeUid } from "utils/common";
-import { Box } from "@chakra-ui/react";
+import { Box, Tooltip } from "@chakra-ui/react";
 
 const Calendar = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
@@ -46,7 +46,6 @@ const Calendar = () => {
 
             const adminArray: any[] = Object.values({ ...mergeObj });
             const filterArray = adminArray.filter((v) => v.status === "success");
-            console.log(filterArray);
             return filterArray;
         }
     }, [docsQuery]);
@@ -126,7 +125,15 @@ const Calendar = () => {
                                 <span className={styles.day}>{format(v, "d")}</span>
                                 {today && <span className={styles.today}>(오늘)</span>}
                             </div>
-                            <Box position="absolute" w="100%" zIndex="9999">
+                            <Box
+                                position="absolute"
+                                w="100%"
+                                zIndex="100"
+                                _hover={{
+                                    zIndex: "9999",
+                                    opacity: "0.9",
+                                }}
+                            >
                                 {docsInfo?.map((doc) => {
                                     if (
                                         differenceInCalendarDays(new Date(doc.startDate), v) <= 0 &&
@@ -202,14 +209,20 @@ const AnnualBox = ({ width, doc }: { width: number; doc: any }) => {
     return (
         <Box
             width={`${100 * width}%`}
-            bg="gray.500"
-            textAlign="center"
+            bg={`#${doc.color}`}
             color="#fff"
             fontWeight="bold"
             ml={`${width - 1}px`}
             mt="1px"
+            cursor="pointer"
+            position="relative"
+            fontSize="0.8rem"
+            p="1px"
+            textShadow="0px 0px 2px #000"
         >
-            {doc.name}
+            <Tooltip hasArrow label={doc.type === "full" ? "연차" : "반차"} bg="blue.600">
+                {doc.name}
+            </Tooltip>
         </Box>
     );
 };
