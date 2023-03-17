@@ -87,10 +87,6 @@
 }
 
 .doc {
-    &:hover {
-        box-shadow: 0 0 2px 0 #3498db inset, 0 0 2px 2px #3498db;
-    }
-
     .docName {
         cursor: pointer;
     }
