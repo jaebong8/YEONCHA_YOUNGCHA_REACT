@@ -25,7 +25,6 @@ const Home = () => {
         documents: {},
     };
     const email = auth?.currentUser?.email;
-    console.log(email);
 
     const mutationLogOut = useAuthSignOut(auth);
     let activeStyle = {

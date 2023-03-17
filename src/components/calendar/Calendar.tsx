@@ -179,7 +179,12 @@ const Calendar = () => {
                                                 ) + 1;
 
                                             return (
-                                                <AnnualBox doc={doc} width={width} key={`${doc.documentUid}+${v}`} />
+                                                <AnnualBox
+                                                    doc={doc}
+                                                    width={width}
+                                                    key={`${doc.documentUid}+${v}`}
+                                                    boxRef={boxRef}
+                                                />
                                             );
                                         }
                                         if (
@@ -195,7 +200,12 @@ const Calendar = () => {
                                                     new Date(doc.startDate)
                                                 ) + 1;
                                             return (
-                                                <AnnualBox doc={doc} width={width} key={`${doc.documentUid}+${v}`} />
+                                                <AnnualBox
+                                                    doc={doc}
+                                                    width={width}
+                                                    key={`${doc.documentUid}+${v}`}
+                                                    boxRef={boxRef}
+                                                />
                                             );
                                         }
 
@@ -205,7 +215,12 @@ const Calendar = () => {
                                         ) {
                                             const width = differenceInCalendarDays(new Date(doc.endDate), v) + 1;
                                             return (
-                                                <AnnualBox doc={doc} width={width} key={`${doc.documentUid}+${v}`} />
+                                                <AnnualBox
+                                                    doc={doc}
+                                                    width={width}
+                                                    key={`${doc.documentUid}+${v}`}
+                                                    boxRef={boxRef}
+                                                />
                                             );
                                         }
 
@@ -215,7 +230,12 @@ const Calendar = () => {
                                         ) {
                                             const width = differenceInCalendarDays(endOfWeek(new Date(v)), v) + 1;
                                             return (
-                                                <AnnualBox doc={doc} width={width} key={`${doc.documentUid}+${v}`} />
+                                                <AnnualBox
+                                                    doc={doc}
+                                                    width={width}
+                                                    key={`${doc.documentUid}+${v}`}
+                                                    boxRef={boxRef}
+                                                />
                                             );
                                         }
                                     }
@@ -231,7 +251,27 @@ const Calendar = () => {
 
 export default Calendar;
 
-const AnnualBox = ({ width, doc }: { width: number; doc: any }) => {
+const AnnualBox = ({ width, doc, boxRef }: { width: number; doc: any; boxRef: any }) => {
+    const onHoverHandler = (e: any) => {
+        const dataId = e.target.dataset.id;
+        Object.values(boxRef.current).forEach((v: any, i) => {
+            if (v?.childElementCount === 0) return;
+            v.childNodes.forEach((child: any) => {
+                if (dataId === child.dataset.id) {
+                    child.style.boxShadow = "0 0 2px 0 #3498db inset, 0 0 2px 2px #3498db";
+                }
+            });
+        });
+    };
+
+    const outHoverHandler = () => {
+        Object.values(boxRef.current).forEach((v: any, i) => {
+            if (v?.childElementCount === 0) return;
+            v.childNodes.forEach((child: any) => {
+                child.style.boxShadow = "";
+            });
+        });
+    };
     return (
         <Box
             className={styles.doc}
@@ -249,6 +289,9 @@ const AnnualBox = ({ width, doc }: { width: number; doc: any }) => {
                 boxShadow: "0 0 10px 0 $blue inset, 0 0 10px 4px $blue",
                 zIndex: "9999",
             }}
+            data-id={doc.documentUid}
+            onMouseEnter={onHoverHandler}
+            onMouseLeave={outHoverHandler}
         >
             <Tooltip
                 hasArrow
