@@ -308,12 +308,11 @@ const Calendar = () => {
                     </div>
 
                     <ul>
-                        {mobileDocsInfo?.map((doc) => {
+                        {mobileDocsInfo?.map((doc,index) => {
                             const annualCount =
                                 differenceInCalendarDays(new Date(doc.endDate), new Date(doc.startDate)) + 1;
                             return (
-                                <>
-                                    <li className={styles.mobileList}>
+                                    <li className={styles.mobileList} key={`${doc.title} + ${index + 1}`}>
                                         <div className={styles.left}>
                                             <Badge fontSize="0.9rem">
                                                 {`${doc.startDate}~${doc.endDate} (${annualCount}일)`}
@@ -326,7 +325,6 @@ const Calendar = () => {
                                             <Badge bg="teal.200">{doc.name} </Badge>
                                         </div>
                                     </li>
-                                </>
                             );
                         })}
                     </ul>
