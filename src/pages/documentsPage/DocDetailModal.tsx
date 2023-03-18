@@ -54,10 +54,6 @@ const DocDetailModal = ({
         }
     }, [clickedData]);
 
-    // const ref = query(collection(db, "users"), where("company", "==", company), where("role", "==", "admin"));
-    // const adminUid = useFirestoreQueryData(["adminUid", clickedData?.userUid], ref);
-    // console.log(adminUid);
-
     const successBtnHandler = useCallback(async () => {
         try {
             if (clickedData !== null) {

@@ -22,7 +22,7 @@ import useInput from "hooks/useInput";
 import { useRef, useState, memo } from "react";
 import DatePicker from "react-datepicker";
 import { useOutletContext } from "react-router-dom";
-import { UserType } from "types/ts";
+import { UserInfoContext, UserType } from "types/ts";
 import { getUid } from "utils/common";
 
 const CreateDocModal = memo(({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
@@ -33,10 +33,10 @@ const CreateDocModal = memo(({ isOpen, onClose }: { isOpen: boolean; onClose: ()
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
     const toast = useToast();
-    const userInfo: UserType = useOutletContext().userInfo;
+    const { userInfo } = useOutletContext<UserInfoContext>();
     const userName = userInfo?.name;
     const company = userInfo?.company;
-    const userUid = useOutletContext().userUid;
+    const { userUid } = useOutletContext<UserInfoContext>();
 
     const onSubmitHandler = (e: React.FormEvent<HTMLElement>) => {
         e.preventDefault();

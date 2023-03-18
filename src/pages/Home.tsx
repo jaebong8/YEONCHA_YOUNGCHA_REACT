@@ -78,6 +78,11 @@ const Home = () => {
                                         mutationLogOut.mutate();
                                         sessionStorage.removeItem("signIn");
                                     }}
+                                    bg="red.700"
+                                    color="#fff"
+                                    _hover={{
+                                        backgroundColor: "red.800",
+                                    }}
                                 >
                                     Log Out
                                 </MenuItem>

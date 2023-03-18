@@ -5,14 +5,14 @@ import { db } from "firebaseConfig/firebase";
 import useDocDataQuery from "hooks/useDocDataQuery";
 import { useState, useCallback, useMemo } from "react";
 import { useOutletContext } from "react-router-dom";
-import { DocType, UserType } from "types/ts";
+import { DocType, UserInfoContext, UserType } from "types/ts";
 import { useFirestoreQueryData } from "@react-query-firebase/firestore";
 import DocDetailModal from "./DocDetailModal";
 import CreateDocModal from "./CreateDocModal";
 
 const DocumentsPage = () => {
     const docModal = useDisclosure();
-    const userInfo: UserType = useOutletContext().userInfo;
+    const { userInfo } = useOutletContext<UserInfoContext>();
     const role = userInfo?.role;
     return (
         <>
@@ -67,10 +67,10 @@ const DocumentsPage = () => {
 export default DocumentsPage;
 
 const DocumentList = ({ type }: { type: string }): JSX.Element => {
-    const userInfo: UserType = useOutletContext().userInfo;
+    const { userInfo } = useOutletContext<UserInfoContext>();
     const company = userInfo?.company;
     const role = userInfo?.role;
-    const userUid = useOutletContext().userUid;
+    const { userUid } = useOutletContext<UserInfoContext>();
     const detailModal = useDisclosure();
     const docInfo = useDocDataQuery(company, userUid)?.data;
 
