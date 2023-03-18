@@ -16,12 +16,13 @@ import {
     isSunday,
 } from "date-fns";
 import { useOutletContext } from "react-router-dom";
-import { UserType } from "types/ts";
+import { UserInfoContext, UserType } from "types/ts";
 import { collection } from "firebase/firestore";
 import { useFirestoreQueryData } from "@react-query-firebase/firestore";
 import { db } from "firebaseConfig/firebase";
 import { timeUid } from "utils/common";
 import { Box, Tooltip } from "@chakra-ui/react";
+
 
 const Calendar = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
@@ -30,7 +31,7 @@ const Calendar = () => {
     const startDate = startOfWeek(monthStart);
     const endDate = endOfWeek(monthEnd);
     const weekMock = ["일", "월", "화", "수", "목", "금", "토"];
-    const userInfo: UserType = useOutletContext().userInfo;
+    const {userInfo} = useOutletContext<UserInfoContext>();
     const company = userInfo?.company;
     const dateContainerRef = useRef<any>();
     const boxRef = useRef<any>({});

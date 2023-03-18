@@ -40,3 +40,8 @@ export interface DocType {
     reject?: string;
     color:string;
 }
+
+export interface UserInfoContext {
+    userInfo: UserType;
+    userUid: string;
+}

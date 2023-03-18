@@ -10,6 +10,9 @@ import { NavLink } from "react-router-dom";
 import { useFirestoreDocumentData } from "@react-query-firebase/firestore";
 import { useAuthSignOut } from "@react-query-firebase/auth";
 import { doc } from "firebase/firestore";
+import { UserType } from "types/ts";
+
+
 
 const Home = () => {
     const userUid = auth?.currentUser?.uid ?? "temp";
@@ -85,7 +88,7 @@ const Home = () => {
                         </Menu>
                     </div>
                 </nav>
-                <Outlet context={{ userInfo, userUid }} />
+                <Outlet context={{ userInfo,userUid }} />
             </div>
         </>
     );
