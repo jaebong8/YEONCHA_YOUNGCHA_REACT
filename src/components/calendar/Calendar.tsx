@@ -16,12 +16,12 @@ import {
     isSunday,
 } from "date-fns";
 import { useOutletContext } from "react-router-dom";
-import { UserType } from "types/ts";
+import { UserInfoContext, UserType } from "types/ts";
 import { collection } from "firebase/firestore";
 import { useFirestoreQueryData } from "@react-query-firebase/firestore";
 import { db } from "firebaseConfig/firebase";
 import { timeUid } from "utils/common";
-import { Box, Tooltip } from "@chakra-ui/react";
+import { Badge, Box, Tooltip } from "@chakra-ui/react";
 
 const Calendar = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
@@ -30,7 +30,7 @@ const Calendar = () => {
     const startDate = startOfWeek(monthStart);
     const endDate = endOfWeek(monthEnd);
     const weekMock = ["일", "월", "화", "수", "목", "금", "토"];
-    const userInfo: UserType = useOutletContext().userInfo;
+    const { userInfo } = useOutletContext<UserInfoContext>();
     const company = userInfo?.company;
     const dateContainerRef = useRef<any>();
     const boxRef = useRef<any>({});
@@ -46,15 +46,36 @@ const Calendar = () => {
 
             const adminArray: any[] = Object.values({ ...mergeObj });
             const filterArray = adminArray.filter((v) => v.status === "success");
+
+            filterArray.sort((a, b) => +new Date(a?.startDate) - +new Date(b?.startDate));
             return filterArray;
         }
     }, [docsQuery]);
 
+    const mobileDocsInfo = useMemo(() => {
+        if (docsQuery !== undefined) {
+            const mergeObj = docsQuery?.[0];
+            for (let i = 1; i < docsQuery.length; i++) {
+                Object.assign(mergeObj, docsQuery?.[i]);
+            }
+
+            const adminArray: any[] = Object.values({ ...mergeObj });
+            const yearMonth = format(currentDate, "yyyyMM");
+            const filterArray = adminArray.filter(
+                (v) => v.status === "success" && yearMonth === format(new Date(v.startDate), "yyyyMM")
+            );
+            console.log(filterArray);
+
+            filterArray.sort((a, b) => +new Date(a?.startDate) - +new Date(b?.startDate));
+            return filterArray;
+        }
+    }, [docsQuery, currentDate]);
+
     const nextMonthHandler = useCallback(() => {
-        setCurrentDate(addMonths(currentDate, 1));
+        setCurrentDate(() => addMonths(currentDate, 1));
     }, [currentDate]);
     const prevMonthHandler = useCallback(() => {
-        setCurrentDate(subMonths(currentDate, 1));
+        setCurrentDate(() => subMonths(currentDate, 1));
     }, [currentDate]);
     const createMonth = useMemo(() => {
         const monthArray = [];
@@ -97,155 +118,221 @@ const Calendar = () => {
     }, [createMonth, docsInfo, boxRef.current]);
 
     return (
-        <section className={styles.calendar}>
-            <div className={styles.yearTitle}>{format(currentDate, "yyyy년")}</div>
-            <div className={styles.monthTitle}>
-                <button className={styles.prevButton} onClick={prevMonthHandler}>
-                    <ChevronLeftIcon />
-                </button>
-                <div className={styles.month}>{format(currentDate, "M월")}</div>
-                <button className={styles.nextButton} onClick={nextMonthHandler}>
-                    <ChevronRightIcon />
-                </button>
-            </div>
-            <div className={styles.dayContainer}>
-                {weekMock.map((v, i) => {
-                    let style;
-                    if (i === 0) {
-                        style = {
-                            color: "red",
-                        };
-                    } else if (i === 6) {
-                        style = {
-                            color: "blue",
-                        };
-                    }
+        <>
+            <section className={styles.calendar}>
+                <div className={styles.yearTitle}>{format(currentDate, "yyyy년")}</div>
+                <div className={styles.monthTitle}>
+                    <button className={styles.prevButton} onClick={prevMonthHandler}>
+                        <ChevronLeftIcon
+                            _hover={{
+                                backgroundColor: "#bee3f8",
+                            }}
+                        />
+                    </button>
+                    <div className={styles.month}>{format(currentDate, "M월")}</div>
+                    <button className={styles.nextButton} onClick={nextMonthHandler}>
+                        <ChevronRightIcon
+                            _hover={{
+                                backgroundColor: "#bee3f8",
+                            }}
+                        />
+                    </button>
+                </div>
+                <div className={styles.dayContainer}>
+                    {weekMock.map((v, i) => {
+                        let style;
+                        if (i === 0) {
+                            style = {
+                                color: "red",
+                            };
+                        } else if (i === 6) {
+                            style = {
+                                color: "blue",
+                            };
+                        }
 
-                    return (
-                        <div key={`day${i}`} style={style}>
-                            {v}
-                        </div>
-                    );
-                })}
-            </div>
-            <div className={styles.dateContainer} ref={dateContainerRef}>
-                {createMonth.map((v, i) => {
-                    const date = format(v, "yyyy/MM/dd");
-                    let style;
-                    const validation = getMonth(currentDate) === getMonth(v);
-                    const today = format(new Date(), "yyyyMMdd") === format(v, "yyyyMMdd");
-
-                    if (validation && isSaturday(v)) {
-                        style = {
-                            color: "blue",
-                        };
-                    } else if (validation && isSunday(v)) {
-                        style = {
-                            color: "red",
-                        };
-                    }
-
-                    return (
-                        <div key={`date${i}`} className={validation ? styles.currentMonth : styles.diffMonth}>
-                            <div className={styles.topLine}>
-                                <span className={styles.day}>{format(v, "d")}</span>
-                                {today && <span className={styles.today}>(오늘)</span>}
+                        return (
+                            <div key={`day${i}`} style={style}>
+                                {v}
                             </div>
-                            <Box
-                                position="absolute"
-                                w="100%"
-                                zIndex="100"
-                                className="docBox"
-                                ref={(element) => {
-                                    return (boxRef.current[i] = element);
-                                }}
-                            >
-                                {docsInfo?.map((doc) => {
-                                    if (
-                                        differenceInCalendarDays(new Date(doc.startDate), v) <= 0 &&
-                                        differenceInCalendarDays(new Date(doc.endDate), v) >= 0
-                                    ) {
+                        );
+                    })}
+                </div>
+                <div className={styles.dateContainer} ref={dateContainerRef}>
+                    {createMonth.map((v, i) => {
+                        const date = format(v, "yyyy/MM/dd");
+                        let style;
+                        const validation = getMonth(currentDate) === getMonth(v);
+                        const today = format(new Date(), "yyyyMMdd") === format(v, "yyyyMMdd");
+
+                        if (validation && isSaturday(v)) {
+                            style = {
+                                color: "blue",
+                            };
+                        } else if (validation && isSunday(v)) {
+                            style = {
+                                color: "red",
+                            };
+                        }
+
+                        return (
+                            <div key={`date${i}`} className={validation ? styles.currentMonth : styles.diffMonth}>
+                                <div className={styles.topLine}>
+                                    <span className={styles.day}>{format(v, "d")}</span>
+                                    {today && <span className={styles.today}>(오늘)</span>}
+                                </div>
+                                <Box
+                                    position="absolute"
+                                    w="100%"
+                                    zIndex="100"
+                                    className="docBox"
+                                    ref={(element) => {
+                                        return (boxRef.current[i] = element);
+                                    }}
+                                >
+                                    {docsInfo?.map((doc) => {
                                         if (
-                                            date === doc.startDate &&
-                                            differenceInCalendarDays(
-                                                new Date(doc.endDate),
-                                                endOfWeek(new Date(doc.startDate))
-                                            ) <= 0
+                                            differenceInCalendarDays(new Date(doc.startDate), v) <= 0 &&
+                                            differenceInCalendarDays(new Date(doc.endDate), v) >= 0
                                         ) {
-                                            const width =
+                                            if (
+                                                date === doc.startDate &&
                                                 differenceInCalendarDays(
                                                     new Date(doc.endDate),
-                                                    new Date(doc.startDate)
-                                                ) + 1;
+                                                    endOfWeek(new Date(doc.startDate))
+                                                ) <= 0
+                                            ) {
+                                                const width =
+                                                    differenceInCalendarDays(
+                                                        new Date(doc.endDate),
+                                                        new Date(doc.startDate)
+                                                    ) + 1;
 
-                                            return (
-                                                <AnnualBox
-                                                    doc={doc}
-                                                    width={width}
-                                                    key={`${doc.documentUid}+${v}`}
-                                                    boxRef={boxRef}
-                                                />
-                                            );
-                                        }
-                                        if (
-                                            date === doc.startDate &&
-                                            differenceInCalendarDays(
-                                                new Date(doc.endDate),
-                                                endOfWeek(new Date(doc.startDate))
-                                            ) >= 0
-                                        ) {
-                                            const width =
+                                                return (
+                                                    <AnnualBox
+                                                        doc={doc}
+                                                        width={width}
+                                                        key={`${doc.documentUid}+${v}`}
+                                                        boxRef={boxRef}
+                                                    />
+                                                );
+                                            }
+                                            if (
+                                                date === doc.startDate &&
                                                 differenceInCalendarDays(
-                                                    endOfWeek(new Date(doc.startDate)),
-                                                    new Date(doc.startDate)
-                                                ) + 1;
-                                            return (
-                                                <AnnualBox
-                                                    doc={doc}
-                                                    width={width}
-                                                    key={`${doc.documentUid}+${v}`}
-                                                    boxRef={boxRef}
-                                                />
-                                            );
-                                        }
+                                                    new Date(doc.endDate),
+                                                    endOfWeek(new Date(doc.startDate))
+                                                ) >= 0
+                                            ) {
+                                                const width =
+                                                    differenceInCalendarDays(
+                                                        endOfWeek(new Date(doc.startDate)),
+                                                        new Date(doc.startDate)
+                                                    ) + 1;
+                                                return (
+                                                    <AnnualBox
+                                                        doc={doc}
+                                                        width={width}
+                                                        key={`${doc.documentUid}+${v}`}
+                                                        boxRef={boxRef}
+                                                    />
+                                                );
+                                            }
 
-                                        if (
-                                            isSunday(v) &&
-                                            differenceInCalendarDays(new Date(doc.endDate), endOfWeek(new Date(v))) <= 0
-                                        ) {
-                                            const width = differenceInCalendarDays(new Date(doc.endDate), v) + 1;
-                                            return (
-                                                <AnnualBox
-                                                    doc={doc}
-                                                    width={width}
-                                                    key={`${doc.documentUid}+${v}`}
-                                                    boxRef={boxRef}
-                                                />
-                                            );
-                                        }
+                                            if (
+                                                isSunday(v) &&
+                                                differenceInCalendarDays(
+                                                    new Date(doc.endDate),
+                                                    endOfWeek(new Date(v))
+                                                ) <= 0
+                                            ) {
+                                                const width = differenceInCalendarDays(new Date(doc.endDate), v) + 1;
+                                                return (
+                                                    <AnnualBox
+                                                        doc={doc}
+                                                        width={width}
+                                                        key={`${doc.documentUid}+${v}`}
+                                                        boxRef={boxRef}
+                                                    />
+                                                );
+                                            }
 
-                                        if (
-                                            isSunday(v) &&
-                                            differenceInCalendarDays(new Date(doc.endDate), endOfWeek(new Date(v))) >= 0
-                                        ) {
-                                            const width = differenceInCalendarDays(endOfWeek(new Date(v)), v) + 1;
-                                            return (
-                                                <AnnualBox
-                                                    doc={doc}
-                                                    width={width}
-                                                    key={`${doc.documentUid}+${v}`}
-                                                    boxRef={boxRef}
-                                                />
-                                            );
+                                            if (
+                                                isSunday(v) &&
+                                                differenceInCalendarDays(
+                                                    new Date(doc.endDate),
+                                                    endOfWeek(new Date(v))
+                                                ) >= 0
+                                            ) {
+                                                const width = differenceInCalendarDays(endOfWeek(new Date(v)), v) + 1;
+                                                return (
+                                                    <AnnualBox
+                                                        doc={doc}
+                                                        width={width}
+                                                        key={`${doc.documentUid}+${v}`}
+                                                        boxRef={boxRef}
+                                                    />
+                                                );
+                                            }
                                         }
-                                    }
-                                })}
-                            </Box>
+                                    })}
+                                </Box>
+                            </div>
+                        );
+                    })}
+                </div>
+            </section>
+
+            {/* mobile */}
+            <section className={styles.mobileCalendar}>
+                <div className={styles.mobileContainer}>
+                    <div className={styles.mobileDateContainer}>
+                        <div className={styles.mobileYearTitle}>{format(currentDate, "yyyy년")}</div>
+                        <div className={styles.mobileMonthTitle}>
+                            <button className={styles.prevButton} onClick={prevMonthHandler}>
+                                <ChevronLeftIcon
+                                    _hover={{
+                                        backgroundColor: "#bee3f8",
+                                    }}
+                                />
+                            </button>
+                            <div className={styles.mobileMonth}>{format(currentDate, "M월")}</div>
+                            <button className={styles.nextButton} onClick={nextMonthHandler}>
+                                <ChevronRightIcon
+                                    _hover={{
+                                        backgroundColor: "#bee3f8",
+                                    }}
+                                />
+                            </button>
                         </div>
-                    );
-                })}
-            </div>
-        </section>
+                    </div>
+
+                    <ul>
+                        {mobileDocsInfo?.map((doc) => {
+                            const annualCount =
+                                differenceInCalendarDays(new Date(doc.endDate), new Date(doc.startDate)) + 1;
+                            return (
+                                <>
+                                    <li className={styles.mobileList}>
+                                        <div className={styles.left}>
+                                            <Badge fontSize="0.9rem">
+                                                {`${doc.startDate}~${doc.endDate} (${annualCount}일)`}
+                                            </Badge>
+                                            <Badge bg={doc.type === "full" ? "blue.100" : "green.100"}>
+                                                {doc.type === "full" ? "연차" : "반차"}
+                                            </Badge>
+                                        </div>
+                                        <div className={styles.right}>
+                                            <Badge bg="teal.200">{doc.name} </Badge>
+                                        </div>
+                                    </li>
+                                </>
+                            );
+                        })}
+                    </ul>
+                </div>
+            </section>
+        </>
     );
 };
 
@@ -256,7 +343,7 @@ const AnnualBox = ({ width, doc, boxRef }: { width: number; doc: any; boxRef: an
         const dataId = e.target.dataset.id;
         Object.values(boxRef.current).forEach((v: any, i) => {
             if (v?.childElementCount === 0) return;
-            v.childNodes.forEach((child: any) => {
+            v?.childNodes?.forEach((child: any) => {
                 if (dataId === child.dataset.id) {
                     child.style.boxShadow = "0 0 2px 0 #3498db inset, 0 0 2px 2px #3498db";
                 }
@@ -267,7 +354,7 @@ const AnnualBox = ({ width, doc, boxRef }: { width: number; doc: any; boxRef: an
     const outHoverHandler = () => {
         Object.values(boxRef.current).forEach((v: any, i) => {
             if (v?.childElementCount === 0) return;
-            v.childNodes.forEach((child: any) => {
+            v?.childNodes?.forEach((child: any) => {
                 child.style.boxShadow = "";
             });
         });
@@ -292,6 +379,7 @@ const AnnualBox = ({ width, doc, boxRef }: { width: number; doc: any; boxRef: an
             data-id={doc.documentUid}
             onMouseEnter={onHoverHandler}
             onMouseLeave={outHoverHandler}
+            cursor="pointer"
         >
             <Tooltip
                 hasArrow
