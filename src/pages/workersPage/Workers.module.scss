@@ -1,4 +1,4 @@
-@use "styles/variables.scss" as v;
+@use 'styles/variables.scss' as v;
 .section {
     padding: 10px;
     .tableContainer {
@@ -37,16 +37,7 @@
                             justify-content: center;
                             align-items: center;
                         }
-                        .editBtn {
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            gap: 5px;
-                            &:hover {
-                                // border-bottom: 1px solid #000;
-                                text-decoration: underline;
-                            }
-                        }
+                       
                     }
                 }
             }
@@ -55,6 +46,28 @@
 }
 .mobileSection {
     display: none;
+}
+
+.modalContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    > li {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 5px;
+        border-bottom: 1px solid #ddd;
+        > div {
+            &:nth-child(1) {
+                color: v.$subColor2;
+                font-weight: bold;
+            }
+            &:nth-child(2) {
+                font-size: 0.9rem;
+            }
+        }
+    }
 }
 
 @media screen and (max-width: v.$mobile) {
@@ -67,7 +80,7 @@
         .mobileContainer {
             > ul {
                 > li {
-                    background-color: #fff;
+                    background-color: v.$subColor2;
                     margin-bottom: 10px;
                     display: flex;
                     align-items: center;
@@ -76,7 +89,9 @@
                     .index {
                         font-size: 1.5rem;
                         line-height: 1;
-                        padding-left: 5px;
+                        padding-left: 10px;
+                        color: #fff;
+                        
                     }
                     .name {
                         width: 100%;

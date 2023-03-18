@@ -10,6 +10,7 @@ export interface WorkerType {
     workerUid: string ;
     userUid?: string;
     [key:string]: number | string | undefined;
+    workYear:number 
 } 
 
 export interface UserType {
