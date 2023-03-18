@@ -64,8 +64,7 @@ const Calendar = () => {
             const filterArray = adminArray.filter(
                 (v) => v.status === "success" && yearMonth === format(new Date(v.startDate), "yyyyMM")
             );
-            console.log(filterArray);
-
+            
             filterArray.sort((a, b) => +new Date(a?.startDate) - +new Date(b?.startDate));
             return filterArray;
         }

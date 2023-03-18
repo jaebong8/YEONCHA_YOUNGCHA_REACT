@@ -22,7 +22,7 @@ import useDocDataQuery from "hooks/useDocDataQuery";
 import DatePicker from "react-datepicker";
 import ko from "date-fns/locale/ko";
 import "react-datepicker/dist/react-datepicker.css";
-import { format } from "date-fns";
+import { differenceInYears, format } from "date-fns";
 
 const Worker = () => {
     const [email, setEmail, changeEmail] = useInput("");
@@ -68,6 +68,7 @@ const Worker = () => {
                 adminInfo.forEach((doc) => {
                     adminUid = doc.id;
                 });
+                const workYear = differenceInYears(new Date(), new Date(workStartDate)) + 1
                 await setDoc(
                     doc(db, "users", adminUid),
                     {
@@ -81,6 +82,7 @@ const Worker = () => {
                                 workerUid: uid,
                                 adminUid,
                                 [year]: 0,
+                                workYear
                             },
                         },
                     },
