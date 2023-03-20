@@ -16,7 +16,7 @@ import {
     isSunday,
 } from "date-fns";
 import { useOutletContext } from "react-router-dom";
-import { UserInfoContext, UserType } from "types/ts";
+import { UserInfoContext } from "types/ts";
 import { collection } from "firebase/firestore";
 import { useFirestoreQueryData } from "@react-query-firebase/firestore";
 import { db } from "firebaseConfig/firebase";
@@ -92,26 +92,35 @@ const Calendar = () => {
         Object.values(boxRef.current).forEach((v: any, i) => {
             if (v?.childElementCount === 0) return;
             if (v) {
-                let parentWidth = getComputedStyle(v.parentNode).width;
-                let overWidth = 0;
-                if (v.parentNode.previousElementSibling.childNodes[1].childNodes.length > 1) {
-                    overWidth = v.parentNode.previousElementSibling.childNodes[1].childNodes.length;
-                } else {
-                    v.parentNode.previousElementSibling.childNodes[1].childNodes.forEach((node: any) => {
-                        if (getComputedStyle(node).width > parentWidth) {
-                            overWidth++;
+                const indexInWeek = i % 7;
+                const testCount: number[] = [];
+                const totalLength: number[] = [];
+                for (let j = 1; j <= indexInWeek; j++) {
+                    const preNode = boxRef.current[i - j];
+
+                    const parentNodeWidth = Number(getComputedStyle(preNode.parentNode).width.split("px")[0]);
+
+                    preNode.childNodes.forEach((node: any) => {
+                        const childWidth = Number(getComputedStyle(node).width.split("px")[0]);
+                        totalLength.push(childWidth);
+                        if (childWidth > parentNodeWidth * j) {
+                            testCount.push(childWidth);
                         }
                     });
                 }
 
-                v.style.top = `${(overWidth + 1) * 22}px`;
-                heightArray.push(overWidth);
+                if (testCount.length === 0) {
+                    v.style.top = `${(testCount.length + 1) * 22}px`;
+                } else {
+                    v.style.top = `${(totalLength.length + 1) * 32}px`;
+                }
             }
+            heightArray.push(Number(v?.style?.top.split("px")[0]));
         });
         const maxHeight = Math.max(...heightArray);
         Object.values(boxRef.current).forEach((v: any, i) => {
             if (v) {
-                v.parentNode.style.height = `${maxHeight * 30}px`;
+                v.parentNode.style.height = `${maxHeight + 40}px`;
             }
         });
     }, [createMonth, docsInfo, boxRef.current]);
@@ -364,9 +373,9 @@ const AnnualBox = ({ width, doc, boxRef }: { width: number; doc: any; boxRef: an
             color="#fff"
             fontWeight="bold"
             ml={`${width - 1}px`}
-            mt="2px"
+            mt="5px"
             fontSize="0.8rem"
-            p="1px"
+            p="5px"
             textShadow="0px 0px 2px #000"
             position="relative"
             _hover={{
