@@ -64,7 +64,7 @@ const Calendar = () => {
             const filterArray = adminArray.filter(
                 (v) => v.status === "success" && yearMonth === format(new Date(v.startDate), "yyyyMM")
             );
-            
+
             filterArray.sort((a, b) => +new Date(a?.startDate) - +new Date(b?.startDate));
             return filterArray;
         }
@@ -307,23 +307,23 @@ const Calendar = () => {
                     </div>
 
                     <ul>
-                        {mobileDocsInfo?.map((doc,index) => {
+                        {mobileDocsInfo?.map((doc, index) => {
                             const annualCount =
                                 differenceInCalendarDays(new Date(doc.endDate), new Date(doc.startDate)) + 1;
                             return (
-                                    <li className={styles.mobileList} key={`${doc.title} + ${index + 1}`}>
-                                        <div className={styles.left}>
-                                            <Badge fontSize="0.9rem">
-                                                {`${doc.startDate}~${doc.endDate} (${annualCount}일)`}
-                                            </Badge>
-                                            <Badge bg={doc.type === "full" ? "blue.100" : "green.100"}>
-                                                {doc.type === "full" ? "연차" : "반차"}
-                                            </Badge>
-                                        </div>
-                                        <div className={styles.right}>
-                                            <Badge bg="teal.200">{doc.name} </Badge>
-                                        </div>
-                                    </li>
+                                <li className={styles.mobileList} key={`${doc.title} + ${index + 1}`}>
+                                    <div className={styles.left}>
+                                        <Badge fontSize="0.9rem">
+                                            {`${doc.startDate}~${doc.endDate} (${annualCount}일)`}
+                                        </Badge>
+                                        <Badge bg={doc.type === "full" ? "blue.100" : "green.100"}>
+                                            {doc.type === "full" ? "연차" : "반차"}
+                                        </Badge>
+                                    </div>
+                                    <div className={styles.right}>
+                                        <Badge bg="teal.200">{doc.name} </Badge>
+                                    </div>
+                                </li>
                             );
                         })}
                     </ul>
@@ -360,7 +360,7 @@ const AnnualBox = ({ width, doc, boxRef }: { width: number; doc: any; boxRef: an
         <Box
             className={styles.doc}
             width={`${100 * width}%`}
-            bg={`#${doc.color}`}
+            bg={doc.color}
             color="#fff"
             fontWeight="bold"
             ml={`${width - 1}px`}
