@@ -23,7 +23,7 @@ import { useRef, useState, memo } from "react";
 import DatePicker from "react-datepicker";
 import { useOutletContext } from "react-router-dom";
 import { UserInfoContext, UserType } from "types/ts";
-import { getUid } from "utils/common";
+import { getPastelColor, getUid } from "utils/common";
 
 const CreateDocModal = memo(({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
     const [title, setTitle, changeTitle] = useInput("");
@@ -68,7 +68,7 @@ const CreateDocModal = memo(({ isOpen, onClose }: { isOpen: boolean; onClose: ()
                                 type,
                                 name: userName,
                                 date,
-                                color: Math.random().toString(16).substr(-6),
+                                color: getPastelColor(),
                             },
                         },
                         { merge: true }

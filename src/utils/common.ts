@@ -1,8 +1,14 @@
 import { format } from "date-fns";
 
 export const getUid = () => {
-    return crypto.randomUUID()
+    return crypto.randomUUID();
 };
-export const timeUid = ()=>{
+export const timeUid = () => {
     return format(new Date(), "HHmmss");
-}
+};
+
+export const getPastelColor = () => {
+    const hue = Math.floor(Math.random() * 360);
+    const pastel = "hsl(" + hue + ", 100%, 80%)";
+    return pastel;
+};
