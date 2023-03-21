@@ -27,6 +27,7 @@ const DocumentsPage = () => {
                 p="1"
                 h="100%"
                 gap="1"
+                mt={{ base: "10px", sm: "0" }}
             >
                 <GridItem bg="#FEFEFE" overflow="auto" p="2">
                     <Center>

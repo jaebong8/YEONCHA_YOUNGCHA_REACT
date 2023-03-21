@@ -100,7 +100,7 @@ const CreateDocModal = memo(({ isOpen, onClose }: { isOpen: boolean; onClose: ()
     return (
         <Modal initialFocusRef={initialRef} finalFocusRef={finalRef} isOpen={isOpen} onClose={onClose}>
             <ModalOverlay />
-            <ModalContent>
+            <ModalContent w="96%">
                 <Box as="form" onSubmit={onSubmitHandler}>
                     <ModalHeader>연차 신청서</ModalHeader>
                     <ModalCloseButton />

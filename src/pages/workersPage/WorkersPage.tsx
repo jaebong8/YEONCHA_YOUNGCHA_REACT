@@ -1,17 +1,15 @@
-import withAuth from 'components/hoc/withAuth';
-import styles from './Workers.module.scss';
-import { useMemo, useState, useCallback } from 'react';
+import withAuth from "components/hoc/withAuth";
+import styles from "./Workers.module.scss";
+import { useMemo, useState, useCallback } from "react";
 
-import { collection, doc } from 'firebase/firestore';
-import { auth, db } from 'firebaseConfig/firebase';
-import { differenceInYears, format } from 'date-fns';
-import { WorkerType } from 'types/ts';
-import { useFirestoreDocumentData } from '@react-query-firebase/firestore';
-import { timeUid } from 'utils/common';
+import { collection, doc } from "firebase/firestore";
+import { auth, db } from "firebaseConfig/firebase";
+import { differenceInYears, format } from "date-fns";
+import { WorkerType } from "types/ts";
+import { useFirestoreDocumentData } from "@react-query-firebase/firestore";
+import { timeUid } from "utils/common";
 import {
-    Box,
     Button,
-    Flex,
     Modal,
     ModalBody,
     ModalCloseButton,
@@ -19,12 +17,12 @@ import {
     ModalHeader,
     ModalOverlay,
     useDisclosure,
-} from '@chakra-ui/react';
+} from "@chakra-ui/react";
 
 const WorkersPage = () => {
-    const userUid = auth?.currentUser?.uid ?? 'temp';
-    const ref = doc(collection(db, 'users'), userUid);
-    const userInfo = useFirestoreDocumentData(['user', timeUid()], ref, {
+    const userUid = auth?.currentUser?.uid ?? "temp";
+    const ref = doc(collection(db, "users"), userUid);
+    const userInfo = useFirestoreDocumentData(["user", timeUid()], ref, {
         subscribe: true,
     });
     const workersInfo: WorkerType[] = useMemo(() => {
@@ -65,7 +63,7 @@ const WorkersComponent = ({ workersInfo }: { workersInfo: WorkerType[] }) => {
     return (
         <>
             {workersInfo?.map((worker: WorkerType) => {
-                const year = format(new Date(), 'yyyy');
+                const year = format(new Date(), "yyyy");
                 return (
                     <tr key={`${worker.workerUid}`}>
                         <td>{worker.name}</td>
@@ -86,7 +84,7 @@ const MobileSection = ({ workersInfo }: { workersInfo: WorkerType[] }) => {
 
     const [clickedWorker, setClickedWorker] = useState<WorkerType | null>(null);
 
-    const year = format(new Date(), 'yyyy');
+    const year = format(new Date(), "yyyy");
     const clickHandler = useCallback(
         (worker: WorkerType) => {
             const workYear = differenceInYears(new Date(), new Date(worker.workStartDate));
@@ -115,7 +113,7 @@ const MobileSection = ({ workersInfo }: { workersInfo: WorkerType[] }) => {
                                         onClick={() => {
                                             clickHandler(worker);
                                         }}
-                                        bg="blue.50"
+                                        bg="gray.50"
                                     >
                                         {worker.name}
                                     </Button>
@@ -128,7 +126,9 @@ const MobileSection = ({ workersInfo }: { workersInfo: WorkerType[] }) => {
                 <Modal isOpen={workerModal.isOpen} onClose={workerModal.onClose}>
                     <ModalOverlay />
                     <ModalContent className={styles.mobileModal} w="95%">
-                        <ModalHeader bg="blue.100" fontSize="1.2rem">직원 정보</ModalHeader>
+                        <ModalHeader bg="blue.100" fontSize="1.2rem">
+                            직원 정보
+                        </ModalHeader>
                         <ModalCloseButton />
                         <ModalBody pb="8">
                             <ul className={styles.modalContainer}>

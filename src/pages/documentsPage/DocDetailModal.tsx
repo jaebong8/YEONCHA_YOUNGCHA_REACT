@@ -175,7 +175,7 @@ const DocDetailModal = ({
         <>
             <Modal isOpen={detailModal.isOpen} onClose={detailModal.onClose}>
                 <ModalOverlay />
-                <ModalContent>
+                <ModalContent w="96%">
                     <ModalHeader>신청서</ModalHeader>
                     <ModalCloseButton />
                     <ModalBody>
@@ -265,7 +265,7 @@ const DocDetailModal = ({
 
             <Modal isOpen={rejectModal.isOpen} onClose={rejectModal.onClose}>
                 <ModalOverlay />
-                <ModalContent>
+                <ModalContent w="96%">
                     <ModalHeader>반려</ModalHeader>
                     <ModalCloseButton />
                     <Box as="form" onSubmit={rejectSubmitHandler}>
