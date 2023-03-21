@@ -21,7 +21,13 @@ const DocumentsPage = () => {
                     신청서 작성하기
                 </Button>
             )}
-            <Grid templateRows={"1fr 0.5fr"} templateColumns="repeat(2, 1fr)" p="1" h="100%" gap="1">
+            <Grid
+                templateRows={{ sm: "1fr 0.5fr", base: "none" }}
+                templateColumns={{ sm: "repeat(2, 1fr)", base: "none" }}
+                p="1"
+                h="100%"
+                gap="1"
+            >
                 <GridItem bg="#FEFEFE" overflow="auto" p="2">
                     <Center>
                         <Badge colorScheme="red" fontSize="0.6rem">
@@ -46,7 +52,7 @@ const DocumentsPage = () => {
                         </List>
                     </Box>
                 </GridItem>
-                <GridItem colSpan={2} bg="#FEFEFE" overflow="auto" p="2">
+                <GridItem colSpan={{ sm: 2, base: 0 }} bg="#FEFEFE" overflow="auto" p="2">
                     <Center>
                         <Badge colorScheme="red" fontSize="0.6rem">
                             반려함
@@ -124,25 +130,47 @@ const DocumentList = ({ type }: { type: string }): JSX.Element => {
                         >
                             {doc?.status === "reject" ? (
                                 <>
-                                    <Flex alignItems="center" p="8px 0">
-                                        <Flex flexBasis="50%" justifyContent="space-between" alignItems="center">
+                                    <Flex
+                                        alignItems={{ base: "flex-start", sm: "center" }}
+                                        p="8px 0"
+                                        flexDirection={{ base: "column", sm: "row" }}
+                                    >
+                                        <Flex
+                                            flexBasis="50%"
+                                            justifyContent="space-between"
+                                            alignItems="center"
+                                            flexWrap="wrap"
+                                            gap="5px"
+                                            borderRight={{ base: "none", sm: "1px solid #eee" }}
+                                        >
                                             <Badge fontSize="1rem" whiteSpace="pre-wrap">
                                                 {doc?.title}
                                             </Badge>
 
-                                            <Flex gap="2" alignItems="center" pr="4" borderRight="1px solid #eee">
+                                            <Flex gap="2" alignItems="center" pr="4">
                                                 <Badge bg="green.50">{doc?.name}</Badge>
                                                 <Badge bg="blue.50">{date}</Badge>
                                             </Flex>
                                         </Flex>
 
-                                        <Flex flexBasis="50%" alignItems="center" pl="4">
+                                        <Flex
+                                            flexBasis="50%"
+                                            alignItems="center"
+                                            pl={{ base: "0", sm: "4" }}
+                                            mt={{ base: "2", sm: "0" }}
+                                        >
                                             <Badge bg="red.50">반려 사유 : {doc?.reject}</Badge>
                                         </Flex>
                                     </Flex>
                                 </>
                             ) : (
-                                <Flex justifyContent="space-between" alignItems="center" p="8px 0">
+                                <Flex
+                                    justifyContent="space-between"
+                                    alignItems="center"
+                                    p="8px 0"
+                                    flexWrap="wrap"
+                                    gap="5px"
+                                >
                                     <Badge fontSize="1rem" whiteSpace="pre-wrap">
                                         {doc?.title}
                                     </Badge>
