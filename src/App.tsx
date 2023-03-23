@@ -7,6 +7,7 @@ import Worker from "pages/auth/signUp/Worker";
 import Calendar from "components/calendar/Calendar";
 import DocumentsPage from "pages/documentsPage/DocumentsPage";
 import WorkersPage from "pages/workersPage/WorkersPage";
+import MyPage from "pages/myPage/MyPage";
 
 const router = createBrowserRouter([
     {
@@ -24,6 +25,10 @@ const router = createBrowserRouter([
             {
                 path: "documents",
                 element: <DocumentsPage />,
+            },
+            {
+                path: "myPage",
+                element: <MyPage />,
             },
         ],
     },
