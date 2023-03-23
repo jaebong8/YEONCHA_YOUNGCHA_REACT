@@ -4,10 +4,11 @@ import { format } from "date-fns";
 import { doc } from "firebase/firestore";
 import { db } from "firebaseConfig/firebase";
 import { useOutletContext } from "react-router-dom";
+import { UserInfoContext } from "types/ts";
 
 const MyPage = () => {
-    const { userInfo } = useOutletContext();
-    const { userUid } = useOutletContext();
+    const { userInfo } = useOutletContext<UserInfoContext>();
+    const { userUid } = useOutletContext<UserInfoContext>();
     const adminUid = userInfo.adminUid ?? "temp";
     const ref = doc(db, "users", adminUid);
     const product = useFirestoreDocumentData(["adminInfo", adminUid], ref, { subscribe: true });
@@ -58,7 +59,7 @@ const MyPage = () => {
     );
 };
 
-const ListItemComponent = ({ title, value }: { title: string; value: string }) => {
+const ListItemComponent = ({ title, value }: { title: string | undefined; value: string | undefined }) => {
     return (
         <ListItem display="flex" alignItems="center" w="100%" bg="whiteAlpha.600" gap="1rem">
             <Flex
