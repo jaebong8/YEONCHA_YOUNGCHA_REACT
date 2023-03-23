@@ -13,6 +13,7 @@
   - SCSS
   - firebase
   - react-query
+  - chakra-ui
 <br>
 
 - 주요 기능
@@ -21,10 +22,28 @@
   - 캘린더에 연차를 사용한 직원들 표시
   - 연차 신청서 문서 작성 가능
   - 문서 결재, 반려, 삭제 가능
+  - 마이페이지에서 연차 사용 갯수 확인 가능
   
 <br>
 
 - 관리자, 직원 회원 가입
-  - ![회원가입](https://user-images.githubusercontent.com/80332764/226856648-a45f2d48-a729-4c22-9578-5991956c531e.gif)
+  ![회원가입](https://user-images.githubusercontent.com/80332764/226856648-a45f2d48-a729-4c22-9578-5991956c531e.gif)
+  
+  <br>
+- 폼 밸리데이션
+  - 에러 및 성공시 토스트 구현
+  
+![image](https://user-images.githubusercontent.com/80332764/227106662-2b5b78ba-7459-49c0-b56a-67fa4e910952.png)
+
+<br>
+
+- 캘린더에 연차 스케쥴링
+
+![연차신청서작성](https://user-images.githubusercontent.com/80332764/227107962-19f1b99e-23ca-44ef-b584-9c558e596a3e.gif)
+
+
+  
+  
+
 
 
