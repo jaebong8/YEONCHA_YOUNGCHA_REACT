@@ -60,8 +60,11 @@ const DocDetailModal = ({
                 const userUid = auth?.currentUser?.uid ?? "empty";
                 const userRef = doc(db, "users", userUid);
                 const year = format(new Date(clickedData?.date), "yyyy");
-                const annual =
-                    differenceInCalendarDays(new Date(clickedData?.endDate), new Date(clickedData?.startDate)) + 1;
+                const halfValidation = clickedData?.type === "half" && clickedData?.startDate === clickedData?.endDate;
+                const annual = halfValidation
+                    ? 0.5
+                    : differenceInCalendarDays(new Date(clickedData?.endDate), new Date(clickedData?.startDate)) + 1;
+
                 await updateDoc(doc(db, company, clickedData?.userUid), {
                     [clickedData?.documentUid]: {
                         createdAt: clickedData?.createdAt,
@@ -102,10 +105,13 @@ const DocDetailModal = ({
                     const userUid = auth?.currentUser?.uid ?? "empty";
                     const userRef = doc(db, "users", userUid);
                     const year = format(new Date(clickedData?.date), "yyyy");
-                    const annual =
-                        (differenceInCalendarDays(new Date(clickedData?.endDate), new Date(clickedData?.startDate)) +
-                            1) *
-                        -1;
+                    const halfValidation =
+                        clickedData?.type === "half" && clickedData?.startDate === clickedData?.endDate;
+                    const annual = halfValidation
+                        ? 0.5 * -1
+                        : (differenceInCalendarDays(new Date(clickedData?.endDate), new Date(clickedData?.startDate)) +
+                              1) *
+                          -1;
 
                     if (clickedData.status === "success") {
                         const keyName = `workers.${clickedData?.userUid}.${year}`;
