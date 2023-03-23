@@ -2,7 +2,7 @@
 
 **프로젝트명**: 연차영차 <br>
 **동기**: 연차 관리 담당자가 직원 관리 및 연차 사용 갯수 관리에 도움을 주고자 개발  <br>
-**주소**: https://yeoncha-youngcha-react-1jm8-3xazix7s2-jaebong8.vercel.app/auth/signin
+**주소**: yeoncha-youngcha-react.vercel.app
 
 
 
