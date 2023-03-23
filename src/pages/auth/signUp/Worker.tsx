@@ -45,6 +45,17 @@ const Worker = () => {
             const uid = user.user.uid;
             const year = format(new Date(), "yyyy");
             const saveUser = async () => {
+                let adminUid = "";
+                const ref = query(
+                    collection(db, "users"),
+                    where("company", "==", companyName),
+                    where("role", "==", "admin")
+                );
+                const adminInfo = await getDocs(ref);
+
+                adminInfo.forEach((doc) => {
+                    adminUid = doc.id;
+                });
                 await setDoc(doc(db, "users", uid), {
                     userUid: uid,
                     role: "worker",
@@ -54,6 +65,7 @@ const Worker = () => {
                     birthDate: format(birthDate, "yyyy/MM/dd"),
                     workStartDate: format(workStartDate, "yyyy/MM/dd"),
                     phoneNumber,
+                    adminUid,
                 });
             };
             const saveInAdmin = async () => {
@@ -68,7 +80,7 @@ const Worker = () => {
                 adminInfo.forEach((doc) => {
                     adminUid = doc.id;
                 });
-                const workYear = differenceInYears(new Date(), new Date(workStartDate)) + 1
+                const workYear = differenceInYears(new Date(), new Date(workStartDate)) + 1;
                 await setDoc(
                     doc(db, "users", adminUid),
                     {
@@ -82,7 +94,7 @@ const Worker = () => {
                                 workerUid: uid,
                                 adminUid,
                                 [year]: 0,
-                                workYear
+                                workYear,
                             },
                         },
                     },

@@ -1,6 +1,6 @@
 import { auth, db } from "firebaseConfig/firebase";
 import withAuth from "components/hoc/withAuth";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 
 import { Avatar, Menu, MenuButton, MenuDivider, MenuGroup, MenuItem, MenuList } from "@chakra-ui/react";
 import styles from "./Home.module.scss";
@@ -12,6 +12,7 @@ import { useAuthSignOut } from "@react-query-firebase/auth";
 import { doc } from "firebase/firestore";
 
 const Home = () => {
+    const navigate = useNavigate();
     const userUid = auth?.currentUser?.uid ?? "temp";
     const ref = doc(db, "users", userUid);
     const userInfo = useFirestoreDocumentData(["user", userUid], ref, {
@@ -68,7 +69,7 @@ const Home = () => {
                             </MenuButton>
                             <MenuList>
                                 <MenuGroup title="Profile">
-                                    <MenuItem>{email}</MenuItem>
+                                    <MenuItem onClick={() => navigate("mypage")}>{email}</MenuItem>
                                 </MenuGroup>
 
                                 <MenuDivider color="#DDD" />
