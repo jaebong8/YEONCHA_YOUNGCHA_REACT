@@ -31,16 +31,25 @@
   ![회원가입](https://user-images.githubusercontent.com/80332764/226856648-a45f2d48-a729-4c22-9578-5991956c531e.gif)
   
   <br>
-- 폼 밸리데이션
-  - 에러 및 성공시 토스트 구현
-  
-![image](https://user-images.githubusercontent.com/80332764/227106662-2b5b78ba-7459-49c0-b56a-67fa4e910952.png)
+
+
+
+
+- 캘린더에 연차 스케쥴링
+  ![연차신청서작성](https://user-images.githubusercontent.com/80332764/227107962-19f1b99e-23ca-44ef-b584-9c558e596a3e.gif)
+
 
 <br>
 
-- 캘린더에 연차 스케쥴링
+- 반응형 레이아웃
 
-![연차신청서작성](https://user-images.githubusercontent.com/80332764/227107962-19f1b99e-23ca-44ef-b584-9c558e596a3e.gif)
+<img src="https://user-images.githubusercontent.com/80332764/227152227-9485f67d-e789-4c50-8013-5b6bcf1997a4.png" width="30%"><img src="https://user-images.githubusercontent.com/80332764/227153055-0749f9fc-8148-4f5d-ab98-c78e7dd25c0b.png" width="30%"><img src="https://user-images.githubusercontent.com/80332764/227153330-bdf4874b-6c0e-4516-8316-71d2d2472d45.png" width="30%">
+
+
+
+
+
+
 
 
   
