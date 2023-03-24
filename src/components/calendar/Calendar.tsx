@@ -40,7 +40,7 @@ const Calendar = () => {
     const docsInfo = useMemo(() => {
         if (docsQuery !== undefined) {
             const mergeObj = docsQuery?.[0];
-            for (let i = 1; i < docsQuery.length; i++) {
+            for (let i = 1; i < docsQuery?.length; i++) {
                 Object.assign(mergeObj, docsQuery?.[i]);
             }
 
@@ -55,7 +55,7 @@ const Calendar = () => {
     const mobileDocsInfo = useMemo(() => {
         if (docsQuery !== undefined) {
             const mergeObj = docsQuery?.[0];
-            for (let i = 1; i < docsQuery.length; i++) {
+            for (let i = 1; i < docsQuery?.length; i++) {
                 Object.assign(mergeObj, docsQuery?.[i]);
             }
 
@@ -100,7 +100,7 @@ const Calendar = () => {
 
                     const parentNodeWidth = Number(getComputedStyle(preNode.parentNode).width.split("px")[0]);
 
-                    preNode.childNodes.forEach((node: any) => {
+                    preNode.childNodes?.forEach((node: any) => {
                         const childWidth = Number(getComputedStyle(node).width.split("px")[0]);
                         totalLength.push(childWidth);
                         if (childWidth > parentNodeWidth * j) {
@@ -109,7 +109,7 @@ const Calendar = () => {
                     });
                 }
 
-                if (isCount.length === 0) {
+                if (isCount?.length === 0) {
                     v.style.top = `${(isCount.length + 1) * 22}px`;
                 } else {
                     v.style.top = `${(totalLength.length + 1) * 32}px`;
