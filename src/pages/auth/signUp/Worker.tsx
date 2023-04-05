@@ -23,6 +23,7 @@ import DatePicker from "react-datepicker";
 import ko from "date-fns/locale/ko";
 import "react-datepicker/dist/react-datepicker.css";
 import { differenceInYears, format } from "date-fns";
+import { useNavigate } from "react-router";
 
 const Worker = () => {
     const [email, setEmail, changeEmail] = useInput("");
@@ -39,7 +40,7 @@ const Worker = () => {
     const handleClickCheck = () => setShowCheck(!showCheck);
     const toast = useToast();
     const companysInfo = useDocDataQuery("companys", "company");
-
+    const navigate = useNavigate();
     const mutation = useAuthCreateUserWithEmailAndPassword(auth, {
         onSuccess(user) {
             const uid = user.user.uid;
@@ -120,6 +121,8 @@ const Worker = () => {
                 duration: 5000,
                 isClosable: true,
             });
+
+            navigate("/auth/signIn");
         },
         onError(error) {
             if (error.code === "auth/email-already-in-use") {

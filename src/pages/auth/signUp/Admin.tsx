@@ -10,6 +10,7 @@ import SignBtn from "components/SignBtn";
 import { arrayUnion, doc, setDoc, updateDoc } from "firebase/firestore";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import useDocDataQuery from "hooks/useDocDataQuery";
+import { useNavigate } from "react-router";
 
 const Admin = () => {
     const [email, setEmail, changeEmail] = useInput("");
@@ -22,7 +23,7 @@ const Admin = () => {
     const handleClickCheck = () => setShowCheck(!showCheck);
     const toast = useToast();
     const companysInfo = useDocDataQuery("companys", "company");
-
+    const navigate = useNavigate();
     const mutation = useAuthCreateUserWithEmailAndPassword(auth, {
         onSuccess(user) {
             toast({
@@ -52,6 +53,7 @@ const Admin = () => {
             setPasswordCheck("");
             setCompanyName("");
             sessionStorage.removeItem("signIn");
+            navigate("/auth/signIn");
         },
         onError(error) {
             if (error.code === "auth/email-already-in-use") {
