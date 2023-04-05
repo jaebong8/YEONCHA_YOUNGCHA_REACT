@@ -29,7 +29,10 @@ const MyPage = () => {
                     <Avatar bg="teal.500" w="60px" h="60px" />
                     <Heading size="lg">{userInfo.email}</Heading>
                     <Badge mt="1" bg="blue.50" p="0.25rem 0.75rem">
-                        {userInfo.role === "admin" ? "관리자" : "직원"}
+                        {userInfo?.role === "admin" ? "관리자" : "직원"}
+                    </Badge>
+                    <Badge mt="1" bg="red.100" p="0.25rem 0.75rem">
+                        {userInfo?.company}
                     </Badge>
                 </Flex>
                 {userInfo.role === "worker" && (

@@ -40,7 +40,7 @@ const Calendar = () => {
     const docsInfo = useMemo(() => {
         if (docsQuery !== undefined) {
             const mergeObj = docsQuery?.[0];
-            for (let i = 1; i < docsQuery.length; i++) {
+            for (let i = 1; i < docsQuery?.length; i++) {
                 Object.assign(mergeObj, docsQuery?.[i]);
             }
 
@@ -55,7 +55,7 @@ const Calendar = () => {
     const mobileDocsInfo = useMemo(() => {
         if (docsQuery !== undefined) {
             const mergeObj = docsQuery?.[0];
-            for (let i = 1; i < docsQuery.length; i++) {
+            for (let i = 1; i < docsQuery?.length; i++) {
                 Object.assign(mergeObj, docsQuery?.[i]);
             }
 
@@ -93,34 +93,38 @@ const Calendar = () => {
             if (v?.childElementCount === 0) return;
             if (v) {
                 const indexInWeek = i % 7;
-                const testCount: number[] = [];
+                const isCount: number[] = [];
                 const totalLength: number[] = [];
                 for (let j = 1; j <= indexInWeek; j++) {
                     const preNode = boxRef.current[i - j];
 
                     const parentNodeWidth = Number(getComputedStyle(preNode.parentNode).width.split("px")[0]);
 
-                    preNode.childNodes.forEach((node: any) => {
+                    preNode.childNodes?.forEach((node: any) => {
                         const childWidth = Number(getComputedStyle(node).width.split("px")[0]);
                         totalLength.push(childWidth);
                         if (childWidth > parentNodeWidth * j) {
-                            testCount.push(childWidth);
+                            isCount.push(childWidth);
                         }
                     });
                 }
 
-                if (testCount.length === 0) {
-                    v.style.top = `${(testCount.length + 1) * 22}px`;
+                if (isCount?.length === 0) {
+                    v.style.top = `${(isCount.length + 1) * 22}px`;
                 } else {
                     v.style.top = `${(totalLength.length + 1) * 32}px`;
                 }
+                heightArray.push(
+                    Number(v?.style?.top.split("px")[0]) + Number(getComputedStyle(v)?.height.split("px")[0])
+                );
             }
-            heightArray.push(Number(v?.style?.top.split("px")[0]));
         });
+
         const maxHeight = Math.max(...heightArray);
+
         Object.values(boxRef.current).forEach((v: any, i) => {
             if (v) {
-                v.parentNode.style.height = `${maxHeight + 40}px`;
+                v.parentNode.style.height = `${maxHeight + 30}px`;
             }
         });
     }, [createMonth, docsInfo, boxRef.current]);
