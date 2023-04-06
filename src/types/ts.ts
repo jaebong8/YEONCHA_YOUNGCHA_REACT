@@ -48,3 +48,27 @@ export interface UserInfoContext {
     userInfo: UserType;
     userUid: string;
 }
+
+export interface RegisterWorker extends RegisterAdmin {
+    birthDate: Date;
+    phoneNumber: string;
+    workStartDate: Date;
+    workerUid: string ;
+    name: string;
+}
+
+export interface RegisterAdmin extends Login{
+    passwordCheck: string;
+    companyName: string;
+}
+
+export interface Login {
+    email: string;
+    password: string;
+}
+
+export interface IDoc {
+    title: string;
+    type:string;
+    selectDate: Date[];
+}

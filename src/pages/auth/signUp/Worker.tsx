@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
     FormControl,
     FormLabel,
@@ -10,8 +10,6 @@ import {
     Stack,
     Box,
 } from "@chakra-ui/react";
-import useInput from "hooks/useInput";
-import { useAuthCreateUserWithEmailAndPassword } from "@react-query-firebase/auth";
 import { auth, db } from "firebaseConfig/firebase";
 import { useToast } from "@chakra-ui/react";
 import LoginLink from "components/loginLink/LoginLink";
@@ -23,17 +21,13 @@ import DatePicker from "react-datepicker";
 import ko from "date-fns/locale/ko";
 import "react-datepicker/dist/react-datepicker.css";
 import { differenceInYears, format } from "date-fns";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
+import { useForm, Controller } from "react-hook-form";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { RegisterWorker } from "types/ts";
 
 const Worker = () => {
-    const [email, setEmail, changeEmail] = useInput("");
-    const [password, setPassword, changePassword] = useInput("");
-    const [passwordCheck, setPasswordCheck, changePasswordCheck] = useInput("");
-    const [companyName, setCompanyName, changeCompanyName] = useInput("");
-    const [birthDate, setBirthDate] = useInput(null);
-    const [workStartDate, setWorkStartDate] = useInput(null);
-    const [name, setName, changeName] = useInput("");
-    const [phoneNumber, setPhoneNumber, changePhoneNumber] = useInput("");
+    const { register, handleSubmit, control } = useForm<RegisterWorker>();
     const [show, setShow] = useState(false);
     const handleClick = () => setShow(!show);
     const [showCheck, setShowCheck] = useState(false);
@@ -41,119 +35,9 @@ const Worker = () => {
     const toast = useToast();
     const companysInfo = useDocDataQuery("companys", "company");
     const navigate = useNavigate();
-    const mutation = useAuthCreateUserWithEmailAndPassword(auth, {
-        onSuccess(user) {
-            const uid = user.user.uid;
-            const year = format(new Date(), "yyyy");
-            const saveUser = async () => {
-                let adminUid = "";
-                const ref = query(
-                    collection(db, "users"),
-                    where("company", "==", companyName),
-                    where("role", "==", "admin")
-                );
-                const adminInfo = await getDocs(ref);
 
-                adminInfo.forEach((doc) => {
-                    adminUid = doc.id;
-                });
-                await setDoc(doc(db, "users", uid), {
-                    userUid: uid,
-                    role: "worker",
-                    email: email,
-                    company: companyName,
-                    name,
-                    birthDate: format(birthDate, "yyyy/MM/dd"),
-                    workStartDate: format(workStartDate, "yyyy/MM/dd"),
-                    phoneNumber,
-                    adminUid,
-                });
-            };
-            const saveInAdmin = async () => {
-                let adminUid = "";
-                const ref = query(
-                    collection(db, "users"),
-                    where("company", "==", companyName),
-                    where("role", "==", "admin")
-                );
-                const adminInfo = await getDocs(ref);
-
-                adminInfo.forEach((doc) => {
-                    adminUid = doc.id;
-                });
-                const workYear = differenceInYears(new Date(), new Date(workStartDate)) + 1;
-                await setDoc(
-                    doc(db, "users", adminUid),
-                    {
-                        workers: {
-                            [uid]: {
-                                name,
-                                phoneNumber,
-                                birthDate: format(birthDate, "yyyy/MM/dd"),
-                                workStartDate: format(workStartDate, "yyyy/MM/dd"),
-                                role: "worker",
-                                workerUid: uid,
-                                adminUid,
-                                [year]: 0,
-                                workYear,
-                            },
-                        },
-                    },
-                    { merge: true }
-                );
-            };
-            saveUser();
-            saveInAdmin();
-            setEmail("");
-            setPassword("");
-            setPasswordCheck("");
-            setCompanyName("");
-            setName("");
-            setPhoneNumber("");
-            setBirthDate(null);
-            setWorkStartDate(null);
-            sessionStorage.removeItem("signIn");
-
-            toast({
-                title: `${user.user.email}님`,
-                description: "회원가입을 환영합니다.",
-                status: "success",
-                duration: 5000,
-                isClosable: true,
-            });
-
-            navigate("/auth/signIn");
-        },
-        onError(error) {
-            if (error.code === "auth/email-already-in-use") {
-                toast({
-                    title: "이미 가입된 이메일입니다.",
-                    status: "error",
-                    duration: 5000,
-                    isClosable: true,
-                });
-                return;
-            }
-            if (error.code === "auth/invalid-email") {
-                toast({
-                    title: "잘못된 이메일 형식입니다.",
-                    status: "error",
-                    duration: 5000,
-                    isClosable: true,
-                });
-                return;
-            }
-            toast({
-                title: "회원가입을 실패하였습니다.",
-                status: "error",
-                duration: 5000,
-                isClosable: true,
-            });
-        },
-    });
-
-    const onSubmitHandler = (e: React.FormEvent<HTMLElement>) => {
-        e.preventDefault();
+    const onSubmit = (data: RegisterWorker) => {
+        const { email, password, passwordCheck, companyName, birthDate, workStartDate, name, phoneNumber } = data;
         if (password !== passwordCheck) {
             toast({
                 title: "비밀번호가 일치하지 않습니다.",
@@ -164,23 +48,108 @@ const Worker = () => {
             return;
         }
 
-        mutation.mutate({
-            email,
-            password,
-        });
+        createUserWithEmailAndPassword(auth, email, password)
+            .then((user) => {
+                const uid = user.user.uid;
+                const year = format(new Date(), "yyyy");
+                const saveUser = async () => {
+                    const ref = query(
+                        collection(db, "users"),
+                        where("company", "==", companyName),
+                        where("role", "==", "admin")
+                    );
+                    const adminInfo = await getDocs(ref);
+                    const workYear = differenceInYears(new Date(), new Date(workStartDate)) + 1;
+                    adminInfo.forEach(async (docData) => {
+                        const adminUid = docData.id;
+                        await setDoc(doc(db, "users", uid), {
+                            userUid: uid,
+                            role: "worker",
+                            email: email,
+                            company: companyName,
+                            name,
+                            birthDate: format(birthDate, "yyyy/MM/dd"),
+                            workStartDate: format(workStartDate, "yyyy/MM/dd"),
+                            phoneNumber,
+                            adminUid: docData.id,
+                        });
+                        await setDoc(
+                            doc(db, "users", adminUid),
+                            {
+                                workers: {
+                                    [uid]: {
+                                        name,
+                                        phoneNumber,
+                                        birthDate: format(birthDate, "yyyy/MM/dd"),
+                                        workStartDate: format(workStartDate, "yyyy/MM/dd"),
+                                        role: "worker",
+                                        workerUid: uid,
+                                        adminUid,
+                                        [year]: 0,
+                                        workYear,
+                                    },
+                                },
+                            },
+                            { merge: true }
+                        );
+                    });
+                };
+                saveUser();
+                sessionStorage.removeItem("signIn");
+
+                toast({
+                    title: `${user.user.email}님`,
+                    description: "회원가입을 환영합니다.",
+                    status: "success",
+                    duration: 5000,
+                    isClosable: true,
+                });
+
+                navigate("/auth/signIn");
+            })
+            .catch((error) => {
+                if (error.code === "auth/email-already-in-use") {
+                    toast({
+                        title: "이미 가입된 이메일입니다.",
+                        status: "error",
+                        duration: 5000,
+                        isClosable: true,
+                    });
+                    return;
+                }
+                if (error.code === "auth/invalid-email") {
+                    toast({
+                        title: "잘못된 이메일 형식입니다.",
+                        status: "error",
+                        duration: 5000,
+                        isClosable: true,
+                    });
+                    return;
+                }
+                toast({
+                    title: "회원가입을 실패하였습니다.",
+                    status: "error",
+                    duration: 5000,
+                    isClosable: true,
+                });
+            });
+    };
+
+    const inputBasicProps = {
+        variant: "flushed",
+        _placeholder: { fontSize: "0.9rem" },
+        autoComplete: "on",
     };
     return (
-        <Box as="form" onSubmit={onSubmitHandler} p="0 30px 30px 30px" w="100%">
+        <Box as="form" onSubmit={handleSubmit(onSubmit)} p="0 30px 30px 30px" w="100%">
             <Stack>
                 <FormControl isRequired>
                     <FormLabel>이메일</FormLabel>
                     <Input
                         type="email"
-                        value={email}
-                        onChange={changeEmail}
+                        {...register("email")}
                         placeholder="이메일 형식으로 입력해주세요."
-                        variant="flushed"
-                        _placeholder={{ fontSize: "0.9rem" }}
+                        {...inputBasicProps}
                     />
                 </FormControl>
                 <FormControl isRequired>
@@ -188,12 +157,10 @@ const Worker = () => {
                     <InputGroup>
                         <Input
                             type={show ? "text" : "password"}
-                            value={password}
-                            onChange={changePassword}
+                            {...register("password")}
                             placeholder="최소 6자리 이상 입력해주세요."
-                            variant="flushed"
                             minLength={6}
-                            _placeholder={{ fontSize: "0.9rem" }}
+                            {...inputBasicProps}
                         />
                         <InputRightElement>
                             <Button h="1.75rem" size="sm" onClick={handleClick}>
@@ -207,12 +174,10 @@ const Worker = () => {
                     <InputGroup>
                         <Input
                             type={showCheck ? "text" : "password"}
-                            value={passwordCheck}
-                            onChange={changePasswordCheck}
+                            {...register("passwordCheck")}
                             placeholder="위와 동일한 비밀번호를 입력해주세요."
-                            variant="flushed"
                             minLength={6}
-                            _placeholder={{ fontSize: "0.9rem" }}
+                            {...inputBasicProps}
                         />
                         <InputRightElement>
                             <Button h="1.75rem" size="sm" onClick={handleClickCheck}>
@@ -223,13 +188,7 @@ const Worker = () => {
                 </FormControl>
                 <FormControl isRequired>
                     <FormLabel>회사</FormLabel>
-                    <Select
-                        placeholder="회사를 선택해주세요."
-                        variant="flushed"
-                        onChange={changeCompanyName}
-                        value={companyName}
-                        _placeholder={{ fontSize: "0.9rem" }}
-                    >
+                    <Select placeholder="회사를 선택해주세요." {...register("companyName")} {...inputBasicProps}>
                         {companysInfo?.data?.companys?.map((company: string) => {
                             return (
                                 <option value={company} key={company}>
@@ -243,13 +202,11 @@ const Worker = () => {
                     <FormLabel>이름</FormLabel>
                     <Input
                         placeholder="이름"
-                        value={name}
                         type="text"
-                        onChange={changeName}
+                        {...register("name")}
                         required
                         pattern="[a-zA-Z0-9ㄱ-ㅎ가-힣]{1,}"
-                        variant="flushed"
-                        _placeholder={{ fontSize: "0.9rem" }}
+                        {...inputBasicProps}
                     />
                 </FormControl>
 
@@ -257,45 +214,59 @@ const Worker = () => {
                     <FormLabel>연락처</FormLabel>
                     <Input
                         placeholder="예시) 01012345678"
-                        value={phoneNumber}
-                        onChange={changePhoneNumber}
+                        {...register("phoneNumber")}
                         required
                         type="tel"
                         pattern="[0-9]{7,}"
-                        variant="flushed"
-                        _placeholder={{ fontSize: "0.9rem" }}
+                        {...inputBasicProps}
                     />
                 </FormControl>
 
                 <FormControl isRequired>
                     <FormLabel>생년월일</FormLabel>
-                    <DatePicker
-                        selected={birthDate}
-                        onChange={(date) => setBirthDate(date)}
-                        dateFormat="yyyy/MM/dd"
-                        locale={ko}
-                        placeholderText={"예시) 1234/12/23"}
-                        peekNextMonth
-                        showMonthDropdown
-                        showYearDropdown
-                        dropdownMode="select"
-                        required
+                    <Controller
+                        name="birthDate"
+                        control={control}
+                        render={({ field }) => {
+                            return (
+                                <DatePicker
+                                    selected={field.value}
+                                    onChange={(date) => field.onChange(date)}
+                                    dateFormat="yyyy/MM/dd"
+                                    locale={ko}
+                                    placeholderText={"예시) 1234/12/23"}
+                                    peekNextMonth
+                                    showMonthDropdown
+                                    showYearDropdown
+                                    dropdownMode="select"
+                                    required
+                                />
+                            );
+                        }}
                     />
                 </FormControl>
 
                 <FormControl isRequired>
                     <FormLabel>입사일</FormLabel>
-                    <DatePicker
-                        selected={workStartDate}
-                        onChange={(date) => setWorkStartDate(date)}
-                        dateFormat="yyyy/MM/dd"
-                        locale={ko}
-                        required
-                        placeholderText={"예시) 1234/12/23"}
-                        peekNextMonth
-                        showMonthDropdown
-                        showYearDropdown
-                        dropdownMode="select"
+                    <Controller
+                        name="workStartDate"
+                        control={control}
+                        render={({ field }) => {
+                            return (
+                                <DatePicker
+                                    selected={field.value}
+                                    onChange={(date) => field.onChange(date)}
+                                    dateFormat="yyyy/MM/dd"
+                                    locale={ko}
+                                    required
+                                    placeholderText={"예시) 1234/12/23"}
+                                    peekNextMonth
+                                    showMonthDropdown
+                                    showYearDropdown
+                                    dropdownMode="select"
+                                />
+                            );
+                        }}
                     />
                 </FormControl>
             </Stack>
