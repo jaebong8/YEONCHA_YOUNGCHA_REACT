@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
     FormControl,
     FormLabel,
@@ -10,86 +10,83 @@ import {
     useToast,
     Box,
 } from "@chakra-ui/react";
-import useInput from "hooks/useInput";
 import LoginLink from "components/loginLink/LoginLink";
 import { Img } from "@chakra-ui/react";
 import logo from "assets/images/mainIcon.png";
 import SignBtn from "components/SignBtn";
-import { useAuthSignInWithEmailAndPassword } from "@react-query-firebase/auth";
 import { auth } from "firebaseConfig/firebase";
 import withAuth from "components/hoc/withAuth";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
+import { useForm } from "react-hook-form";
+import { Login } from "types/ts";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 const SignIn = () => {
-    const [email, setEmail, changeEmail] = useInput("");
-    const [password, setPassword, changePassword] = useInput("");
+    const { register, handleSubmit } = useForm<Login>();
+
     const [show, setShow] = useState(false);
     const toast = useToast();
     const handleClick = () => setShow(!show);
 
-    const mutation = useAuthSignInWithEmailAndPassword(auth, {
-        onSuccess(user) {
-            toast({
-                title: `${user.user.email}님`,
-                description: "로그인을 환영합니다.",
-                status: "success",
-                duration: 5000,
-                isClosable: true,
-            });
-            setEmail("");
-            setPassword("");
-            sessionStorage.setItem("signIn", user.user.uid);
-        },
-        onError(error) {
-            if (error.code === "auth/wrong-password") {
+    const inputBasicProps = {
+        variant: "flushed",
+        _placeholder: { fontSize: "0.9rem" },
+        autoComplete: "on",
+    };
+
+    const onSubmit = (data: Login) => {
+        const { email, password } = data;
+        signInWithEmailAndPassword(auth, email, password)
+            .then((user) => {
                 toast({
-                    title: "잘못된 패스워드입니다.",
+                    title: `${user.user.email}님`,
+                    description: "로그인을 환영합니다.",
+                    status: "success",
+                    duration: 5000,
+                    isClosable: true,
+                });
+                sessionStorage.setItem("signIn", user.user.uid);
+            })
+            .catch((error) => {
+                if (error.code === "auth/wrong-password") {
+                    toast({
+                        title: "잘못된 패스워드입니다.",
+                        status: "error",
+                        duration: 5000,
+                        isClosable: true,
+                    });
+                    return;
+                }
+                if (error.code === "auth/user-not-found") {
+                    toast({
+                        title: "없는 회원입니다.",
+                        status: "error",
+                        duration: 5000,
+                        isClosable: true,
+                    });
+                    return;
+                }
+
+                toast({
+                    title: "로그인을 실패하였습니다.",
                     status: "error",
                     duration: 5000,
                     isClosable: true,
                 });
-                return;
-            }
-            if (error.code === "auth/user-not-found") {
-                toast({
-                    title: "없는 회원입니다.",
-                    status: "error",
-                    duration: 5000,
-                    isClosable: true,
-                });
-                return;
-            }
-
-            toast({
-                title: "로그인을 실패하였습니다.",
-                status: "error",
-                duration: 5000,
-                isClosable: true,
             });
-        },
-    });
-
-    const onSubmitHandler = (e: React.FormEvent<HTMLElement>) => {
-        e.preventDefault();
-        mutation.mutate({
-            email,
-            password,
-        });
     };
     return (
         <Center h="100vh">
             <Center bg="#FFFFFF" h="100%" w="sm" flexDir="column">
                 <Img boxSize="150px" objectFit="cover" src={logo} alt="mainIcon" mb="4" />
-                <Box as="form" onSubmit={onSubmitHandler} w="100%" p="0 30px 30px 30px">
+                <Box as="form" onSubmit={handleSubmit(onSubmit)} w="100%" p="0 30px 30px 30px">
                     <FormControl isRequired>
                         <FormLabel>이메일</FormLabel>
                         <Input
                             type="email"
-                            value={email}
-                            onChange={changeEmail}
+                            {...register("email")}
                             placeholder="이메일 형식으로 입력해주세요."
-                            variant="flushed"
-                            _placeholder={{ fontSize: "0.9rem" }}
+                            {...inputBasicProps}
                         />
                     </FormControl>
                     <FormControl isRequired mt="2">
@@ -97,12 +94,10 @@ const SignIn = () => {
                         <InputGroup>
                             <Input
                                 type={show ? "text" : "password"}
-                                value={password}
-                                onChange={changePassword}
+                                {...register("password")}
                                 placeholder="6글자 이상으로 입력해주세요."
-                                variant="flushed"
                                 minLength={6}
-                                _placeholder={{ fontSize: "0.9rem" }}
+                                {...inputBasicProps}
                             />
 
                             <InputRightElement>

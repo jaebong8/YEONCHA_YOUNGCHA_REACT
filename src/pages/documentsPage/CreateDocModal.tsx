@@ -18,28 +18,28 @@ import {
 import { format } from "date-fns";
 import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import { db } from "firebaseConfig/firebase";
-import useInput from "hooks/useInput";
-import { useRef, useState, memo } from "react";
+import { useRef, memo } from "react";
 import DatePicker from "react-datepicker";
 import { useOutletContext } from "react-router-dom";
-import { UserInfoContext, UserType } from "types/ts";
+import { IDoc, UserInfoContext } from "types/ts";
 import { getPastelColor, getUid } from "utils/common";
+import { useForm, Controller } from "react-hook-form";
 
 const CreateDocModal = memo(({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
-    const [title, setTitle, changeTitle] = useInput("");
-    const [type, setType, changeType] = useInput("");
-    const initialRef = useRef(null);
+    const { register, handleSubmit, control, reset } = useForm<IDoc>();
+    const { ref, ...rest } = register("title");
+    const initialRef = useRef<HTMLInputElement | null>(null);
     const finalRef = useRef(null);
-    const [startDate, setStartDate] = useState(null);
-    const [endDate, setEndDate] = useState(null);
     const toast = useToast();
     const { userInfo } = useOutletContext<UserInfoContext>();
     const userName = userInfo?.name;
     const company = userInfo?.company;
     const { userUid } = useOutletContext<UserInfoContext>();
 
-    const onSubmitHandler = (e: React.FormEvent<HTMLElement>) => {
-        e.preventDefault();
+    const onSubmit = (data: IDoc) => {
+        const { title, type, selectDate } = data;
+        const [startDate, endDate] = selectDate;
+
         if (startDate === null || endDate === null) {
             toast({
                 title: "기간을 선택해주세요.",
@@ -91,17 +91,14 @@ const CreateDocModal = memo(({ isOpen, onClose }: { isOpen: boolean; onClose: ()
             };
             saveDoc();
             onClose();
-            setTitle("");
-            setType("");
-            setStartDate(null);
-            setEndDate(null);
+            reset();
         }
     };
     return (
         <Modal initialFocusRef={initialRef} finalFocusRef={finalRef} isOpen={isOpen} onClose={onClose}>
             <ModalOverlay />
             <ModalContent w="96%">
-                <Box as="form" onSubmit={onSubmitHandler}>
+                <Box as="form" onSubmit={handleSubmit(onSubmit)}>
                     <ModalHeader>연차 신청서</ModalHeader>
                     <ModalCloseButton />
                     <ModalBody pb={6}>
@@ -110,23 +107,21 @@ const CreateDocModal = memo(({ isOpen, onClose }: { isOpen: boolean; onClose: ()
                                 <FormLabel>제목</FormLabel>
                                 <Input
                                     type="text"
-                                    value={title}
-                                    onChange={changeTitle}
+                                    {...register("title")}
+                                    name="title"
                                     placeholder="제목을 입력해주세요."
                                     variant="flushed"
                                     _placeholder={{ fontSize: "0.9rem" }}
-                                    ref={initialRef}
+                                    ref={(e) => {
+                                        ref(e);
+                                        initialRef.current = e;
+                                    }}
                                 />
                             </FormControl>
 
                             <FormControl isRequired>
                                 <FormLabel>종류</FormLabel>
-                                <Select
-                                    placeholder="종류를 선택해주세요."
-                                    value={type}
-                                    onChange={changeType}
-                                    variant="flushed"
-                                >
+                                <Select placeholder="종류를 선택해주세요." {...register("type")} variant="flushed">
                                     <option value="full">연차</option>
                                     <option value="half">반차</option>
                                 </Select>
@@ -134,17 +129,23 @@ const CreateDocModal = memo(({ isOpen, onClose }: { isOpen: boolean; onClose: ()
 
                             <FormControl mt={4} isRequired>
                                 <FormLabel>날짜</FormLabel>
-                                <DatePicker
-                                    selected={startDate}
-                                    onChange={(dates: any) => {
-                                        const [start, end] = dates;
-                                        setStartDate(start);
-                                        setEndDate(end);
+                                <Controller
+                                    name="selectDate"
+                                    control={control}
+                                    render={({ field }) => {
+                                        return (
+                                            <DatePicker
+                                                selected={field?.value?.[0]}
+                                                onChange={(dates) => {
+                                                    return field.onChange(dates);
+                                                }}
+                                                startDate={field?.value?.[0]}
+                                                endDate={field?.value?.[1]}
+                                                selectsRange
+                                                placeholderText="기간을 선택해주세요."
+                                            />
+                                        );
                                     }}
-                                    startDate={startDate}
-                                    endDate={endDate}
-                                    selectsRange
-                                    placeholderText="기간을 선택해주세요."
                                 />
                             </FormControl>
                         </Stack>
